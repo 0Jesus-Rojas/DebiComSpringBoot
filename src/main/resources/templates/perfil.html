@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Perfil | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Perfil de usuario</h1>
+                    <p>Consulta y actualiza tu información personal.</p>
+                </div>
+            </div>
+
+            <article class="card" th:if="${session.mensajeVendedor != null}">
+                <p th:text="${session.mensajeVendedor}">Mensaje</p>
+            </article>
+
+            <article class="card" th:if="${session.mensajeErrorVendedor != null}">
+                <p th:text="${session.mensajeErrorVendedor}">Error</p>
+            </article>
+
+            <article class="card" th:if="${puedeRegistrarseVendedor}">
+                <h2>¿Quieres vender en DebiCom?</h2>
+                <p>Regístrate como vendedor para administrar una tienda, productos y solicitudes de crédito.</p>
+                <form method="post" th:action="@{/comprador/registrarse-vendedor}"
+                      onsubmit="return confirm('¿Deseas registrarte como vendedor?');">
+                    <button class="button primary" type="submit">Registrarme como vendedor</button>
+                </form>
+            </article>
+
+            <article class="card">
+                <form class="dark-grid" method="post" th:action="@{/comprador/perfil}">
+                    <label>Nombre
+                        <input name="nombre" th:value="${perfil != null ? perfil.nombre : ''}" required>
+                    </label>
+                    <label>Apellido
+                        <input name="apellido" th:value="${perfil != null ? perfil.apellido : ''}" required>
+                    </label>
+                    <label>Identificación
+                        <input name="identificacion" th:value="${perfil != null ? perfil.identificacion : ''}" required>
+                    </label>
+                    <label>Tipo de identificación
+                        <input th:value="${perfil != null ? perfil.tipoIdentificacion : ''}" readonly>
+                    </label>
+                    <label>Fecha de nacimiento
+                        <input type="date" name="fechaNacimiento" th:value="${perfil != null and perfil.fechaNacimiento != null ? perfil.fechaNacimiento : ''}" required>
+                    </label>
+                    <label>Correo
+                        <input type="email" name="correo" th:value="${perfil != null ? perfil.correo : ''}" required>
+                    </label>
+                    <label>Teléfono
+                        <input name="telefono" th:value="${perfil != null ? perfil.telefono : ''}" required>
+                    </label>
+                    <label>Dirección
+                        <input name="direccion" th:value="${perfil != null ? perfil.direccion : ''}" required>
+                    </label>
+                    <label>
+                        <input type="checkbox" name="autorizaDatos"
+                               th:checked="${perfil != null and perfil.autorizaDatos != null and perfil.autorizaDatos == 1}">
+                        Autorizo el tratamiento de mis datos
+                    </label>
+                    <div class="form-actions">
+                        <button class="button primary" type="submit">Guardar cambios</button>
+                    </div>
+                </form>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>

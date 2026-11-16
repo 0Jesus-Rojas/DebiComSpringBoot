@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Asignar crédito | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Asignar crédito</h1>
+                    <p>Asigna un cupo aprobado. No se entregan productos en este paso; el saldo aparece únicamente cuando el cupo se consume.</p>
+                </div>
+            </div>
+
+            <article class="card" th:if="${error != null and !#strings.isEmpty(error)}" style="margin-bottom:16px;border-left:4px solid #e74c3c;">
+                <strong>Error:</strong> <span th:text="${error}">Error</span>
+            </article>
+
+            <form method="post" th:action="@{/vendedor/creditos/otorgar}">
+                <article class="card">
+                    <div class="dark-grid">
+                        <label>Tienda
+                            <select name="idTienda" id="selectTiendaCredito" required>
+                                <option th:each="t : ${tiendas}"
+                                        th:value="${t.idTienda}"
+                                        th:selected="${idTienda != null and idTienda == t.idTienda}"
+                                        th:text="${t.nombreTienda}">
+                                    Tienda
+                                </option>
+                            </select>
+                        </label>
+                        <label>Comprador
+                            <select name="idCliente" required>
+                                <option value="">Seleccione un comprador</option>
+                                <option th:each="c : ${compradores}"
+                                        th:value="${c.idCliente}"
+                                        th:text="${c.nombreCompleto} + ' — ' + ${c.identificacion}">
+                                    Comprador
+                                </option>
+                            </select>
+                        </label>
+                        <label>Cupo aprobado
+                            <input type="number" name="cupo" min="0.01" step="0.01" required placeholder="0.00">
+                        </label>
+                        <label>Fecha límite
+                            <input type="date" name="fechaVencimiento"
+                                   th:min="${#temporals.format(#temporals.createToday().plusDays(15), 'yyyy-MM-dd')}"
+                                   th:max="${#temporals.format(#temporals.createToday().plusMonths(1), 'yyyy-MM-dd')}"
+                                   th:value="${#temporals.format(#temporals.createToday().plusMonths(1), 'yyyy-MM-dd')}"
+                                   required>
+                        </label>
+                        <label class="full">Observaciones
+                            <textarea name="observaciones" maxlength="255" placeholder="Opcional"></textarea>
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button class="button primary" type="submit">Asignar cupo de crédito</button>
+                        <a class="button secondary" th:href="@{/vendedor/dashboard}">Volver al panel</a>
+                    </div>
+                </article>
+            </form>
+
+            <article class="card">
+                <h2>Regla de negocio</h2>
+                <p>El crédito se maneja como un cupo aprobado con vigencia de 15 días a 1 mes. Esta acción no selecciona productos ni modifica inventario.</p>
+            </article>
+
+            <script th:inline="javascript">
+                (function () {
+                    const baseUrl = /*[[@{/vendedor/creditos/otorgar}]]*/ '/vendedor/creditos/otorgar';
+                    const selectTienda = document.getElementById('selectTiendaCredito');
+                    if (selectTienda) {
+                        selectTienda.addEventListener('change', function () {
+                            window.location = baseUrl + '?idTienda=' + encodeURIComponent(this.value);
+                        });
+                    }
+                })();
+            </script>
+        </section>
+    </main>
+</div>
+</body>
+</html>

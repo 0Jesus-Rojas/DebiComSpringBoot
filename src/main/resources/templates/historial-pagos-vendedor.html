@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Historial de pagos | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Historial de pagos</h1>
+                    <p>Pagos recibidos de clientes sobre los créditos otorgados por tus tiendas.</p>
+                </div>
+                <a class="button secondary" th:href="@{/vendedor/historial-creditos}">
+                    Historial de créditos
+                </a>
+            </div>
+
+            <article class="card history-total">
+                <span>Total recibido</span>
+                <strong th:text="'$' +${totalPagado != null ? totalPagado : '0.00'}">\$0.00</strong>
+            </article>
+
+            <article class="card">
+                <div class="filter-toolbar">
+                    <input
+                            type="search"
+                            class="filter-input"
+                            data-table-filter="#tablaHistorialPagos"
+                            placeholder="Buscar por número de pago..."
+                            aria-label="Buscar pago por número">
+                </div>
+
+                <div class="table-wrap">
+                    <table id="tablaHistorialPagos">
+                        <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Pago</th>
+                            <th>Crédito</th>
+                            <th>Cliente</th>
+                            <th>Tienda</th>
+                            <th>Monto</th>
+                            <th>Referencia</th>
+                            <th>Estado crédito</th>
+                            <th>Observaciones</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr data-filter-empty
+                            th:if="${#lists.isEmpty(pagosVendedor)}">
+                            <td colspan="9">
+                                No hay pagos registrados para tus créditos.
+                            </td>
+                        </tr>
+
+                        <tr th:each="p : ${pagosVendedor}"
+                            th:attr="data-filter-value=${p.idPago}">
+
+                            <td th:text="${p.fechaPago != null ? p.fechaPago : ''}">
+                                Fecha
+                            </td>
+
+                            <td th:text="'#' + ${p.idPago}">
+                                #0
+                            </td>
+
+                            <td>
+                                <a th:href="@{/vendedor/creditos/detalle(id=${p.idSolicitud})}"
+                                   th:text="'#' + ${p.idSolicitud}">
+                                    #0
+                                </a>
+                            </td>
+
+                            <td th:text="${p.cliente}">
+                                Cliente
+                            </td>
+
+                            <td th:text="${p.tienda}">
+                                Tienda
+                            </td>
+
+                            <td>
+                                <strong th:text="'$' + ${p.montoPagado}">
+                                    $0.00
+                                </strong>
+                            </td>
+
+                            <td th:text="${p.numeroReferencia != null ? p.numeroReferencia : ''}">
+                            </td>
+
+                            <td>
+            <span class="badge"
+                  th:text="${p.estadoCredito}">
+                ESTADO
+            </span>
+                            </td>
+
+                            <td th:text="${p.observaciones != null ? p.observaciones : ''}">
+                            </td>
+
+                        </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Gestionar tienda | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Gestionar tiendas</h1>
+                    <p>Crea varias tiendas y administra cada una de forma independiente.</p>
+                </div>
+            </div>
+
+            <article class="card" th:if="${ok == 'creada'}" style="margin-bottom:16px;border-left:4px solid #2ecc71;">
+                <strong>La tienda fue creada correctamente.</strong>
+            </article>
+            <article class="card" th:if="${ok == 'actualizada'}" style="margin-bottom:16px;border-left:4px solid #2ecc71;">
+                <strong>La tienda fue actualizada correctamente.</strong>
+            </article>
+
+            <article class="card" th:if="${error != null and !#strings.isEmpty(error)}" style="margin-bottom:16px;border-left:4px solid #e74c3c;">
+                <strong>Error:</strong> <span th:text="${error}">Error</span>
+            </article>
+
+            <div class="metric-row" th:if="${tienda != null}">
+                <article class="metric">
+                    <span class="label">Ventas totales</span>
+                    <strong th:text="'$' + ${#numbers.formatDecimal(tienda.ventasTotales != null ? tienda.ventasTotales : 0, 1, 2)}">$0.00</strong>
+                </article>
+                <article class="metric">
+                    <span class="label">Créditos otorgados</span>
+                    <strong th:text="${tienda.creditosOtorgados}">0</strong>
+                </article>
+                <article class="metric success">
+                    <span class="label">Clientes activos</span>
+                    <strong th:text="${tienda.clientesActivos}">0</strong>
+                </article>
+                <article class="metric danger">
+                    <span class="label">Productos</span>
+                    <strong th:text="${tienda.totalProductos}">0</strong>
+                </article>
+            </div>
+
+            <article class="card">
+                <h2>Mis tiendas</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Tienda</th>
+                            <th>NIT</th>
+                            <th>Dirección</th>
+                            <th>Teléfono</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(tiendas)}">
+                            <td colspan="5">Aún no tienes tiendas registradas.</td>
+                        </tr>
+                        <tr th:each="t : ${tiendas}">
+                            <td><b th:text="${t.nombreTienda}">Tienda</b></td>
+                            <td th:text="${t.nit}">NIT</td>
+                            <td th:text="${t.direccion}">Dirección</td>
+                            <td th:text="${t.telefono}">Teléfono</td>
+                            <td>
+                                <a class="button secondary tiny"
+                                   th:href="@{/vendedor/tienda(idTienda=${t.idTienda})}">Gestionar</a>
+                                <a class="button secondary tiny"
+                                   th:href="@{/vendedor/inventario(idTienda=${t.idTienda})}">Inventario</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <div class="store-create-actions">
+                <button
+                        class="button primary store-create-toggle"
+                        id="toggleCrearTienda"
+                        type="button"
+                        aria-expanded="false"
+                        aria-controls="formCrearTienda">
+                    + Crear Tienda
+                </button>
+            </div>
+
+            <article class="card store-create" id="formCrearTienda" aria-hidden="true">
+                <div class="page-heading" style="margin-bottom:16px;">
+                    <div>
+                        <h2>Crear nueva tienda</h2>
+                        <p>Registra una nueva tienda y luego administra su inventario.</p>
+                    </div>
+                </div>
+                <form class="dark-grid" method="post" th:action="@{/vendedor/tienda}">
+                    <input type="hidden" name="action" value="crear">
+                    <label>Nombre de la tienda
+                        <input name="nombreTienda" maxlength="100" required placeholder="Ej. DebiCom Centro">
+                    </label>
+                    <label>NIT
+                        <input name="nit" maxlength="45" required placeholder="900123456-1">
+                    </label>
+                    <label>Dirección
+                        <input name="direccion" maxlength="150" required>
+                    </label>
+                    <label>Teléfono
+                        <input name="telefono" maxlength="30" required>
+                    </label>
+                    <div class="form-actions">
+                        <button class="button primary" type="submit">Crear tienda</button>
+                    </div>
+                </form>
+            </article>
+
+            <article class="card" th:if="${tienda != null}">
+                <h2 th:text="'Configuración: ' + ${tienda.nombreTienda}">Configuración</h2>
+                <form class="dark-grid" method="post" th:action="@{/vendedor/tienda}">
+                    <input type="hidden" name="action" value="actualizar">
+                    <input type="hidden" name="idTienda" th:value="${tienda.idTienda}">
+                    <label>Nombre de la tienda
+                        <input name="nombreTienda" maxlength="100" th:value="${tienda.nombreTienda}" required>
+                    </label>
+                    <label>NIT
+                        <input name="nit" maxlength="45" th:value="${tienda.nit}" required>
+                    </label>
+                    <label>Dirección
+                        <input name="direccion" maxlength="150" th:value="${tienda.direccion}" required>
+                    </label>
+                    <label>Teléfono
+                        <input name="telefono" maxlength="30" th:value="${tienda.telefono}" required>
+                    </label>
+                    <div class="form-actions">
+                        <button class="button primary" type="submit">Guardar cambios</button>
+                    </div>
+                </form>
+            </article>
+        </section>
+    </main>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const button = document.getElementById("toggleCrearTienda");
+        const form = document.getElementById("formCrearTienda");
+
+        if (!button || !form) return;
+
+        button.addEventListener("click", function () {
+            const open = form.classList.toggle("is-open");
+            form.setAttribute("aria-hidden", String(!open));
+            button.setAttribute("aria-expanded", String(open));
+            button.textContent = open ? "× Ocultar formulario" : "+ Crear Tienda";
+
+            if (open) {
+                form.scrollIntoView({behavior: "smooth", block: "start"});
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

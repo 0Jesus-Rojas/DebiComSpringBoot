@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Aprobar / rechazar créditos | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Aprobar / Rechazar créditos</h1>
+                    <p>Esta pantalla muestra exclusivamente solicitudes que están pendientes.</p>
+                </div>
+                <a class="button secondary" th:href="@{/vendedor/historial-creditos}">
+                    Ver historial
+                </a>
+            </div>
+
+            <article class="card empty-state" th:if="${#lists.isEmpty(solicitudes)}">
+                <h2>No hay solicitudes pendientes</h2>
+                <p>Todas las solicitudes de tus tiendas ya fueron procesadas.</p>
+            </article>
+
+            <article class="card request-card" th:each="s : ${solicitudes}">
+                <div>
+                    <h3 th:text="${s.cliente}">Cliente</h3>
+                    <small th:text="'Solicitud #' + ${s.idSolicitud} + ' · ' + ${s.tienda}">Solicitud</small>
+                </div>
+                <div>
+                    <span>Cupo solicitado</span>
+                    <b th:text="'$' + ${s.cupoAprobado}">$0.00</b>
+                </div>
+                <div>
+                    <span>Saldo</span>
+                    <b th:text="'$' + ${s.saldoPendiente}">$0.00</b>
+                </div>
+                <div>
+                    <span>Solicitud</span>
+                    <b th:text="${s.fechaSolicitud}">Fecha</b>
+                </div>
+                <div>
+                    <span>Estado</span>
+                    <b class="pending" th:text="${s.estado}">PENDIENTE</b>
+                </div>
+                <div class="request-actions">
+                    <a class="button secondary"
+                       th:href="@{/vendedor/creditos/detalle(id=${s.idSolicitud})}">
+                        Ver detalles
+                    </a>
+
+                    <form method="post" th:action="@{/vendedor/creditos/estado}">
+                        <input type="hidden" name="idSolicitud" th:value="${s.idSolicitud}">
+                        <input type="hidden" name="estado" value="APROBADO">
+                        <button class="button primary" type="submit">Aprobar</button>
+                    </form>
+
+                    <form method="post" th:action="@{/vendedor/creditos/estado}">
+                        <input type="hidden" name="idSolicitud" th:value="${s.idSolicitud}">
+                        <input type="hidden" name="estado" value="RECHAZADO">
+                        <button class="button danger" type="submit">Rechazar</button>
+                    </form>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>

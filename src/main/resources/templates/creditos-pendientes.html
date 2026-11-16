@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Créditos pendientes | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Créditos pendientes</h1>
+                    <p>Créditos aprobados con saldo pendiente. Abre un crédito para registrar su pago.</p>
+                </div>
+                <a class="button primary" th:href="@{/vendedor/creditos/otorgar}">Otorgar crédito</a>
+            </div>
+
+            <article class="card" th:if="${ok == 'pago'}" style="margin-bottom:16px;border-left:4px solid #2ecc71;">
+                <strong>El pago presencial fue registrado correctamente.</strong>
+            </article>
+            <article class="card" th:if="${error != null and !#strings.isEmpty(error)}" style="margin-bottom:16px;border-left:4px solid #e74c3c;">
+                <strong>Error:</strong> <span th:text="${error}">Error</span>
+            </article>
+
+            <div class="metric-row">
+                <article class="metric warning">
+                    <span class="label">Créditos activos</span>
+                    <strong th:text="${creditosPendientes != null ? creditosPendientes.creditosActivos : 0}">0</strong>
+                </article>
+                <article class="metric">
+                    <span class="label">Dinero por cobrar</span>
+                    <strong th:text="'$' + ${creditosPendientes != null ? creditosPendientes.dineroTotalPorCobrar : '0.00'}">$0.00</strong>
+                </article>
+                <article class="metric">
+                    <span class="label">Clientes con deuda</span>
+                    <strong th:text="${creditosPendientes != null ? creditosPendientes.clientesConDeuda : 0}">0</strong>
+                </article>
+            </div>
+
+            <article class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Crédito</th>
+                            <th>Cliente</th>
+                            <th>Tienda</th>
+                            <th>Monto</th>
+                            <th>Saldo</th>
+                            <th>Vencimiento</th>
+                            <th>Mora</th>
+                            <th>Acción</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${creditosPendientes == null or #lists.isEmpty(creditosPendientes.creditos)}">
+                            <td colspan="8">No hay créditos pendientes.</td>
+                        </tr>
+                        <tr th:each="c : ${creditosPendientes?.creditos}">
+                            <td th:text="'#' + ${c.idSolicitud}">#0</td>
+                            <td th:text="${c.cliente}">Cliente</td>
+                            <td th:text="${c.tienda}">Tienda</td>
+                            <td th:text="'$' + ${c.montoOriginal}">$0.00</td>
+                            <td><b th:text="'$' + ${c.saldoPendiente}">$0.00</b></td>
+                            <td th:text="${c.fechaVencimiento}">Fecha</td>
+                            <td th:text="${c.diasMora} + ' días'">0 días</td>
+                            <td>
+                                <a class="button primary tiny"
+                                   th:href="@{/vendedor/creditos/detalle(id=${c.idSolicitud})}">
+                                    Ver crédito y pagar
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>

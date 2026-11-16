@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ventas directas | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/venta-directa.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Venta directa</h1>
+                    <p>Registra una venta de contado a un comprador. Esta operación no crea ni modifica créditos.</p>
+                </div>
+            </div>
+
+            <article class="card venta-alert error" th:if="${error != null and !#strings.isEmpty(error)}">
+                <strong>Error:</strong> <span th:text="${error}">Error</span>
+            </article>
+
+            <article class="card venta-alert success" th:if="${ok == 'venta-registrada' and idFactura != null and idFactura > 0}">
+                <div>
+                    <strong>Venta registrada correctamente.</strong>
+                    <p>La factura <b th:text="'#' + ${idFactura}">#0</b> quedó pagada de contado y fue sincronizada con el historial del comprador.</p>
+                </div>
+                <a class="button primary" th:href="@{/vendedor/ventas-directas/factura(id=${idFactura})}">Descargar factura PDF</a>
+            </article>
+
+            <article class="card venta-alert error" th:if="${#lists.isEmpty(tiendas)}">
+                El vendedor no tiene tiendas asignadas. Registra una tienda antes de realizar ventas.
+            </article>
+
+            <form method="post" th:action="@{/vendedor/ventas-directas}" id="ventaDirectaForm" autocomplete="off" th:if="${!#lists.isEmpty(tiendas)}">
+                <article class="card">
+                    <div class="card-title">
+                        <div>
+                            <h2>Datos de la venta</h2>
+                            <p>El servidor vuelve a validar tienda, comprador, precios y existencias al guardar.</p>
+                        </div>
+                    </div>
+                    <div class="dark-grid">
+                        <label> Tienda
+                            <select name="idTienda" id="idTienda" onchange="cambiarTienda(this.value)" required>
+                                <option th:each="tienda : ${tiendas}"
+                                        th:value="${tienda.idTienda}"
+                                        th:selected="${idTienda != null and idTienda == tienda.idTienda}"
+                                        th:text="${tienda.nombreTienda}">
+                                    Tienda
+                                </option>
+                            </select>
+                        </label>
+                        <label> Comprador
+                            <select name="idCliente" required>
+                                <option value="">Seleccione un comprador</option>
+                                <option th:each="comprador : ${compradores}"
+                                        th:value="${comprador.idCliente}"
+                                        th:text="${comprador.nombreCompleto} + ' — ' + ${comprador.identificacion}">
+                                    Comprador
+                                </option>
+                            </select>
+                        </label>
+                        <label> Método de pago
+                            <select name="idTipoPago" required>
+                                <option value="">Seleccione un método</option>
+                                <option th:each="tipo : ${tiposPago}"
+                                        th:value="${tipo.idTipoPago}"
+                                        th:text="${tipo.nombrePago}">
+                                    Método
+                                </option>
+                            </select>
+                        </label>
+                        <label class="full"> Observaciones
+                            <textarea name="observaciones" maxlength="255" placeholder="Opcional"></textarea>
+                        </label>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-title">
+                        <div>
+                            <h2>Productos</h2>
+                            <p>Selecciona los productos y la cantidad. El precio usado en la venta siempre se toma de la base de datos.</p>
+                        </div>
+                        <div class="venta-search">
+                            <label for="productoBusqueda">Buscar</label>
+                            <input id="productoBusqueda" type="search" placeholder="Nombre del producto">
+                        </div>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table id="productosTabla">
+                            <thead>
+                            <tr>
+                                <th>Agregar</th>
+                                <th>Producto</th>
+                                <th>Stock</th>
+                                <th>Precio</th>
+                                <th>Cantidad</th>
+                                <th>Subtotal</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${#lists.isEmpty(productosVenta)}">
+                                <td colspan="6">No hay productos activos con stock disponible en esta tienda.</td>
+                            </tr>
+                            <tr th:each="producto : ${productosVenta}"
+                                th:attr="data-producto-nombre=${#strings.toLowerCase(producto.nombre)}">
+                                <td>
+                                    <input type="checkbox" class="venta-check" name="idProducto"
+                                           th:value="${producto.idProducto}"
+                                           th:attr="data-id=${producto.idProducto}">
+                                </td>
+                                <td>
+                                    <b th:text="${producto.nombre}">Producto</b>
+                                    <th:block th:if="${producto.descripcion != null and !#strings.isEmpty(producto.descripcion)}">
+                                        <br><small th:text="${producto.descripcion}"></small>
+                                    </th:block>
+                                </td>
+                                <td class="stock-cell" th:text="${producto.stock}">0</td>
+                                <td class="unit-price" th:attr="data-price=${producto.precioUnitario}" th:text="'$' + ${producto.precioUnitario}">$0.00</td>
+                                <td>
+                                    <input type="number" class="venta-qty"
+                                           th:name="'cantidad_' + ${producto.idProducto}"
+                                           th:attr="data-id=${producto.idProducto}"
+                                           min="1" th:max="${producto.stock}" value="1" disabled>
+                                </td>
+                                <td>$<span class="line-total" th:attr="data-id=${producto.idProducto}">0.00</span></td>
+                            </tr>
+                            <tr id="sinResultados" hidden>
+                                <td colspan="6">No hay productos que coincidan con la búsqueda.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="metric-row">
+                        <article class="metric">
+                            <span class="label">Productos seleccionados</span>
+                            <strong id="productoCount">0</strong>
+                        </article>
+                        <article class="metric success">
+                            <span class="label">Total de contado</span>
+                            <strong>$<span id="grandTotal">0.00</span></strong>
+                        </article>
+                    </div>
+
+                    <div class="venta-actions">
+                        <button class="button primary" type="button" id="confirmarVentaBtn">Registrar venta de contado</button>
+                        <a class="button secondary" th:href="@{/vendedor/dashboard}">Cancelar</a>
+                    </div>
+                </article>
+
+                <div class="modal" id="confirmModal" aria-hidden="true">
+                    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+                        <button type="button" class="modal-close" id="cerrarConfirmacion" aria-label="Cerrar">&times;</button>
+                        <h2 id="confirmTitle">Confirmar venta</h2>
+                        <p>Se registrará una venta de contado por un total de <strong>$<span id="modalTotal">0.00</span></strong>.</p>
+                        <p class="modal-note">La operación descuenta inventario, crea la factura y registra el pago. No se genera crédito.</p>
+                        <div class="venta-actions">
+                            <button type="submit" class="button primary">Confirmar y guardar</button>
+                            <button type="button" class="button secondary" id="cancelarConfirmacion">Volver</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script>
+    (function () {
+        const form = document.getElementById('ventaDirectaForm');
+        if (!form) return;
+
+        const checks = Array.from(form.querySelectorAll('.venta-check'));
+        const quantities = Array.from(form.querySelectorAll('.venta-qty'));
+        const totalNode = document.getElementById('grandTotal');
+        const countNode = document.getElementById('productoCount');
+        const modal = document.getElementById('confirmModal');
+        const modalTotal = document.getElementById('modalTotal');
+        const search = document.getElementById('productoBusqueda');
+        const empty = document.getElementById('sinResultados');
+
+        function updateTotal() {
+            let total = 0;
+            let count = 0;
+            checks.forEach(function (check) {
+                const quantity = quantities.find(function (node) { return node.dataset.id === check.dataset.id; });
+                const line = form.querySelector('.line-total[data-id="' + check.dataset.id + '"]');
+                const row = check.closest('tr');
+                const price = parseFloat(row.querySelector('.unit-price').dataset.price || '0');
+                if (check.checked) {
+                    quantity.disabled = false;
+                    const max = parseInt(quantity.max || '1', 10);
+                    let value = parseInt(quantity.value || '1', 10);
+                    if (!Number.isFinite(value) || value < 1) value = 1;
+                    if (value > max) value = max;
+                    quantity.value = value;
+                    const subtotal = price * value;
+                    line.textContent = subtotal.toFixed(2);
+                    total += subtotal;
+                    count++;
+                } else {
+                    quantity.disabled = true;
+                    line.textContent = '0.00';
+                }
+            });
+            totalNode.textContent = total.toFixed(2);
+            countNode.textContent = String(count);
+        }
+
+        function openModal() {
+            if (!checks.some(function (check) { return check.checked; })) {
+                alert('Selecciona al menos un producto.');
+                return;
+            }
+            const buyer = form.querySelector('[name="idCliente"]');
+            const payment = form.querySelector('[name="idTipoPago"]');
+            const store = form.querySelector('[name="idTienda"]');
+            if (!buyer.value || !payment.value || !store.value) {
+                alert('Completa tienda, comprador y método de pago.');
+                return;
+            }
+            modalTotal.textContent = totalNode.textContent;
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        document.getElementById('confirmarVentaBtn').addEventListener('click', openModal);
+        document.getElementById('cerrarConfirmacion').addEventListener('click', closeModal);
+        document.getElementById('cancelarConfirmacion').addEventListener('click', closeModal);
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) closeModal();
+        });
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && modal.classList.contains('active')) closeModal();
+        });
+
+        checks.forEach(function (check) { check.addEventListener('change', updateTotal); });
+        quantities.forEach(function (quantity) { quantity.addEventListener('input', updateTotal); });
+
+        search.addEventListener('input', function () {
+            const term = search.value.trim().toLocaleLowerCase('es');
+            let visible = 0;
+            form.querySelectorAll('#productosTabla tbody tr[data-producto-nombre]').forEach(function (row) {
+                const show = !term || row.dataset.productoNombre.includes(term);
+                row.hidden = !show;
+                if (show) visible++;
+            });
+            empty.hidden = visible !== 0;
+        });
+
+        updateTotal();
+    })();
+
+    function cambiarTienda(idTienda) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('idTienda', idTienda);
+        url.searchParams.delete('idFactura');
+        url.searchParams.delete('ok');
+        window.location.replace(url.toString());
+    }
+</script>
+</body>
+</html>

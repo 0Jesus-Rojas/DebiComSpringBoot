@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Detalle del préstamo | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main"
+          th:with="esCredito=${#strings.equalsIgnoreCase(prestamo.tipoPrestamo, 'CREDITO')},
+                   cupo=${prestamo.cupoAprobado != null ? prestamo.cupoAprobado : 0},
+                   saldo=${prestamo.saldoPendiente != null ? prestamo.saldoPendiente : 0},
+                   monto=${prestamo.montoTotal != null ? prestamo.montoTotal : 0},
+                   disponible=${cupo - saldo > 0 ? cupo - saldo : 0}">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1 th:text="'Detalle del préstamo #' + ${prestamo.idSolicitud}">Detalle del préstamo</h1>
+                    <p>Consulta la información completa del crédito o fiado registrado a tu nombre.</p>
+                </div>
+                <a class="button secondary" th:href="@{/comprador/estado-credito}">Volver</a>
+            </div>
+
+            <article class="card">
+                <div class="metric-row">
+                    <article class="metric">
+                        <span class="label">Tipo</span>
+                        <strong th:text="${prestamo.tipoPrestamo}">TIPO</strong>
+                    </article>
+                    <article class="metric">
+                        <span class="label">Tienda</span>
+                        <strong th:text="${prestamo.tienda}">Tienda</strong>
+                    </article>
+                    <article class="metric">
+                        <span class="label">Estado</span>
+                        <strong th:text="${prestamo.estado}">Estado</strong>
+                    </article>
+                    <article class="metric">
+                        <span class="label">Vencimiento</span>
+                        <strong th:text="${prestamo.fechaVencimiento}">Fecha</strong>
+                    </article>
+                </div>
+
+                <div class="metric-row">
+                    <article class="metric">
+                        <span class="label" th:text="${esCredito ? 'Cupo aprobado' : 'Valor fiado'}">Cupo aprobado</span>
+                        <strong th:text="'$' + ${#numbers.formatDecimal(esCredito ? cupo : monto, 1, 2)}">$0.00</strong>
+                    </article>
+                    <article class="metric warning">
+                        <span class="label">Saldo pendiente</span>
+                        <strong th:text="'$' + ${#numbers.formatDecimal(saldo, 1, 2)}">$0.00</strong>
+                    </article>
+                    <article class="metric success" th:if="${esCredito}">
+                        <span class="label">Cupo disponible</span>
+                        <strong th:text="'$' + ${#numbers.formatDecimal(disponible, 1, 2)}">$0.00</strong>
+                    </article>
+                    <article class="metric">
+                        <span class="label">Fecha de solicitud</span>
+                        <strong th:text="${prestamo.fechaSolicitud}">Fecha</strong>
+                    </article>
+                </div>
+
+                <p><b>Fecha de aprobación/asignación:</b> <span th:text="${prestamo.fechaAprobacion != null ? prestamo.fechaAprobacion : '—'}">—</span></p>
+                <p><b>Observaciones:</b> <span th:text="${prestamo.observaciones != null and !#strings.isEmpty(prestamo.observaciones) ? prestamo.observaciones : '—'}">—</span></p>
+            </article>
+
+            <article class="card">
+                <h2>Productos asociados</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio unitario</th>
+                            <th>Subtotal</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(productosPrestamo)}">
+                            <td colspan="4"
+                                th:text="${esCredito ? 'Este crédito todavía no registra productos consumidos.' : 'Este fiado no tiene productos registrados.'}">
+                                Sin productos
+                            </td>
+                        </tr>
+                        <tr th:each="x : ${productosPrestamo}">
+                            <td>
+                                <b th:text="${x.nombre}">Producto</b>
+                                <th:block th:if="${x.descripcion != null and !#strings.isEmpty(x.descripcion)}">
+                                    <br><small th:text="${x.descripcion}"></small>
+                                </th:block>
+                            </td>
+                            <td th:text="${x.cantidad}">0</td>
+                            <td th:text="'$' + ${x.precioUnitario}">$0.00</td>
+                            <td th:text="'$' + ${x.subtotal}">$0.00</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>

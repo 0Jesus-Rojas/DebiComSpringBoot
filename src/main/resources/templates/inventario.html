@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Inventario | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Inventario</h1>
+                    <p>Productos de la tienda seleccionada.</p>
+                </div>
+            </div>
+
+            <article class="card" th:if="${ok == 'producto'}" style="margin-bottom:16px;border-left:4px solid #2ecc71;">
+                <strong>El producto fue registrado correctamente.</strong>
+            </article>
+
+            <article class="card" th:if="${ok == 'actualizado'}" style="margin-bottom:16px;border-left:4px solid #2ecc71;">
+                <strong>El producto fue actualizado correctamente.</strong>
+            </article>
+
+            <article class="card" th:if="${error != null and !#strings.isEmpty(error)}" style="margin-bottom:16px;border-left:4px solid #e74c3c;">
+                <strong>Error:</strong> <span th:text="${error}">Error</span>
+            </article>
+
+            <form method="get" class="card" th:action="@{/vendedor/inventario}">
+                <div class="dark-grid">
+                    <label>Tienda
+                        <select name="idTienda" onchange="this.form.submit()" required>
+                            <option th:each="t : ${tiendas}"
+                                    th:value="${t.idTienda}"
+                                    th:selected="${idTienda != null and idTienda == t.idTienda}"
+                                    th:text="${t.nombreTienda}">
+                                Tienda
+                            </option>
+                        </select>
+                    </label>
+                    <label>Buscar por nombre
+                        <input name="search" th:value="${search != null ? search : ''}" placeholder="Ej: arroz">
+                    </label>
+                    <div class="form-actions">
+                        <button class="button primary" type="submit">Buscar</button>
+                    </div>
+                </div>
+            </form>
+
+            <th:block th:if="${idTienda != null and idTienda > 0}">
+                <article class="card">
+                    <h2>Agregar producto</h2>
+                    <form class="dark-grid" method="post" th:action="@{/vendedor/inventario}">
+                        <input type="hidden" name="idTienda" th:value="${idTienda}">
+                        <label>Nombre
+                            <input name="nombre" maxlength="100" required placeholder="Ej. Arroz 1 kg">
+                        </label>
+                        <label>Precio unitario
+                            <input type="number" name="precio" min="0.01" step="0.01" required placeholder="0.00">
+                        </label>
+                        <label>Stock inicial
+                            <input type="number" name="stock" min="0" step="1" value="0" required>
+                        </label>
+                        <label>Unidad
+                            <select name="idUnidad" required>
+                                <option value="">Seleccione</option>
+                                <option th:each="u : ${unidades}"
+                                        th:value="${u.idUnidad}"
+                                        th:text="${u.nombreUnidad}">
+                                    Unidad
+                                </option>
+                            </select>
+                        </label>
+                        <label>Estado
+                            <select name="idEstadoProducto" required>
+                                <option th:each="e : ${estadosProducto}"
+                                        th:value="${e.idEstadoProducto}"
+                                        th:selected="${e.idEstadoProducto == 1}"
+                                        th:text="${e.nombreEstado}">
+                                    Estado
+                                </option>
+                            </select>
+                        </label>
+                        <label class="full">Descripción
+                            <textarea name="descripcion" maxlength="255" placeholder="Descripción del producto"></textarea>
+                        </label>
+                        <div class="form-actions">
+                            <button class="button primary" type="submit">Agregar producto</button>
+                        </div>
+                    </form>
+                </article>
+
+                <article class="card" th:if="${productoEditar != null}" style="margin-top:16px;">
+                    <h2>Editar producto</h2>
+                    <form class="dark-grid" method="post" th:action="@{/vendedor/inventario}">
+                        <input type="hidden" name="accion" value="actualizar">
+                        <input type="hidden" name="idProducto" th:value="${productoEditar.idProducto}">
+                        <input type="hidden" name="idTienda" th:value="${productoEditar.idTienda}">
+
+                        <label>Nombre
+                            <input name="nombre" maxlength="100" required th:value="${productoEditar.nombre}">
+                        </label>
+                        <label>Precio unitario
+                            <input type="number" name="precio" min="0.01" step="0.01" required th:value="${productoEditar.precioUnitario}">
+                        </label>
+                        <label>Stock
+                            <input type="number" name="stock" min="0" step="1" required th:value="${productoEditar.stock}">
+                        </label>
+                        <label>Unidad
+                            <select name="idUnidad" required>
+                                <option th:each="u : ${unidades}"
+                                        th:value="${u.idUnidad}"
+                                        th:selected="${u.idUnidad == productoEditar.idUnidad}"
+                                        th:text="${u.nombreUnidad}">
+                                    Unidad
+                                </option>
+                            </select>
+                        </label>
+                        <label>Estado
+                            <select name="idEstadoProducto" required>
+                                <option th:each="e : ${estadosProducto}"
+                                        th:value="${e.idEstadoProducto}"
+                                        th:selected="${e.idEstadoProducto == productoEditar.idEstadoProducto}"
+                                        th:text="${e.nombreEstado}">
+                                    Estado
+                                </option>
+                            </select>
+                        </label>
+                        <label class="full">Descripción
+                            <textarea name="descripcion" maxlength="255" th:text="${productoEditar.descripcion != null ? productoEditar.descripcion : ''}"></textarea>
+                        </label>
+                        <div class="form-actions">
+                            <button class="button primary" type="submit">Guardar cambios</button>
+                            <a class="button secondary" th:href="@{/vendedor/inventario(idTienda=${idTienda})}">Cancelar</a>
+                        </div>
+                    </form>
+                </article>
+
+                <div class="metric-row">
+                    <article class="metric">
+                        <span class="label">Productos activos</span>
+                        <strong th:text="${metricasInventario != null ? metricasInventario.activos : 0}">0</strong>
+                    </article>
+                    <article class="metric success">
+                        <span class="label">Disponibles</span>
+                        <strong th:text="${metricasInventario != null ? metricasInventario.disponibles : 0}">0</strong>
+                    </article>
+                    <article class="metric warning">
+                        <span class="label">A punto de agotarse</span>
+                        <strong th:text="${metricasInventario != null ? metricasInventario.bajoStock : 0}">0</strong>
+                    </article>
+                    <article class="metric danger">
+                        <span class="label">Agotados</span>
+                        <strong th:text="${metricasInventario != null ? metricasInventario.agotados : 0}">0</strong>
+                    </article>
+                </div>
+
+                <article class="card">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Stock</th>
+                                <th>Unidad</th>
+                                <th>Estado</th>
+                                <th>Precio</th>
+                                <th>Acción</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${#lists.isEmpty(productos)}">
+                                <td colspan="6">No hay productos registrados en esta tienda.</td>
+                            </tr>
+                            <tr th:each="p : ${productos}">
+                                <td>
+                                    <b th:text="${p.nombre}">Producto</b>
+                                    <th:block th:if="${p.descripcion != null and !#strings.isEmpty(p.descripcion)}">
+                                        <br><small th:text="${p.descripcion}"></small>
+                                    </th:block>
+                                </td>
+                                <td th:text="${p.stock}">0</td>
+                                <td th:text="${p.unidad != null ? p.unidad : ''}">Unidad</td>
+                                <td th:text="${p.estado != null ? p.estado : ''}">Estado</td>
+                                <td th:text="'$' + ${p.precioUnitario}">$0.00</td>
+                                <td>
+                                    <a class="button secondary tiny"
+                                       th:href="@{/vendedor/inventario(idTienda=${idTienda}, editarId=${p.idProducto})}">Editar</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </th:block>
+        </section>
+    </main>
+</div>
+</body>
+</html>

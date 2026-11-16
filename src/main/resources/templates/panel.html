@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Dashboard | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Panel de control</h1>
+                    <p th:text="'Resumen de la gestión de créditos de ' + ${session.nombre} + '.'">Resumen de la gestión de créditos.</p>
+                </div>
+                <div class="form-actions">
+                    <a class="button secondary" th:href="@{/vendedor/creditos/otorgar}">Asignar crédito</a>
+                    <a class="button primary" th:href="@{/vendedor/fiados/asignar}">Asignar fiado</a>
+                    <a class="button secondary" th:href="@{/vendedor/creditos(estado='PENDIENTE')}">Revisar solicitudes</a>
+                </div>
+            </div>
+
+            <div class="metric-row">
+                <article class="metric">
+                    <span class="label">Total de clientes</span>
+                    <strong th:text="${dashboard != null ? dashboard.totalClientes : 0}">0</strong>
+                </article>
+                <article class="metric warning">
+                    <span class="label">Solicitudes nuevas</span>
+                    <strong th:text="${dashboard != null ? dashboard.solicitudesNuevas : 0}">0</strong>
+                </article>
+                <article class="metric">
+                    <span class="label">Pendientes</span>
+                    <strong th:text="${dashboard != null ? dashboard.solicitudesPendientes : 0}">0</strong>
+                </article>
+                <article class="metric success">
+                    <span class="label">Aprobadas</span>
+                    <strong th:text="${dashboard != null ? dashboard.solicitudesAprobadas : 0}">0</strong>
+                </article>
+            </div>
+
+            <div class="metric-row">
+                <article class="metric">
+                    <span class="label">Pagos recibidos</span>
+                    <strong th:text="'$' + ${dashboard != null and dashboard.pagosRecibidos != null ? #numbers.formatDecimal(dashboard.pagosRecibidos, 1, 2) : '0.00'}">$0.00</strong>
+                </article>
+                <article class="metric danger">
+                    <span class="label">Saldo por cobrar</span>
+                    <strong th:text="'$' + ${dashboard != null and dashboard.deudaPendiente != null ? #numbers.formatDecimal(dashboard.deudaPendiente, 1, 2) : '0.00'}">$0.00</strong>
+                </article>
+            </div>
+
+            <article class="card">
+                <h2>Acciones rápidas</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Tienda</th>
+                            <th>Monto</th>
+                            <th>Acción</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(solicitudesNuevas)}">
+                            <td colspan="4">No hay solicitudes pendientes.</td>
+                        </tr>
+                        <tr th:each="s, stat : ${solicitudesNuevas}" th:if="${stat.index < 5}">
+                            <td th:text="${s.cliente}">Cliente</td>
+                            <td th:text="${s.tienda}">Tienda</td>
+                            <td th:text="'$' + ${s.montoTotal}">$0.00</td>
+                            <td>
+                                <form method="post" th:action="@{/vendedor/creditos/estado}" style="display:inline">
+                                    <input type="hidden" name="idSolicitud" th:value="${s.idSolicitud}">
+                                    <input type="hidden" name="estado" value="APROBADO">
+                                    <button class="button primary tiny" type="submit">Aprobar</button>
+                                </form>
+                                <a class="button secondary tiny" th:href="@{/vendedor/creditos/detalle(id=${s.idSolicitud})}">Detalles</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="card">
+                <h2>Tiendas asignadas</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Tienda</th>
+                            <th>NIT</th>
+                            <th>Dirección</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="t : ${tiendas}">
+                            <td th:text="${t.nombreTienda}">Tienda</td>
+                            <td th:text="${t.nit}">NIT</td>
+                            <td th:text="${t.direccion}">Dirección</td>
+                            <td>
+                                <a class="button secondary tiny" th:href="@{/vendedor/tienda(idTienda=${t.idTienda})}">Gestionar</a>
+                                <a class="button secondary tiny" th:href="@{/vendedor/inventario(idTienda=${t.idTienda})}">Inventario</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Historial de créditos | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Historial de créditos</h1>
+                    <p>Consulta todos los créditos otorgados históricamente por tus tiendas.</p>
+                </div>
+                <a class="button secondary" th:href="@{/vendedor/creditos}">
+                    Solicitudes pendientes
+                </a>
+            </div>
+
+            <article class="card">
+                <div class="filter-toolbar">
+                    <input
+                            type="search"
+                            class="filter-input"
+                            data-table-filter="#tablaHistorialCreditos"
+                            placeholder="Buscar por número de crédito..."
+                            aria-label="Buscar crédito por número">
+                </div>
+
+                <div class="history-summary">
+                    <span>Créditos otorgados</span>
+                    <strong th:text="${historialCreditos != null ? #lists.size(historialCreditos) : 0}">0</strong>
+                </div>
+
+                <div class="table-wrap">
+                    <table id="tablaHistorialCreditos">
+                        <thead>
+                        <tr>
+                            <th>Crédito</th>
+                            <th>Cliente</th>
+                            <th>Tipo de préstamo</th>
+                            <th>Tienda</th>
+                            <th>Cupo aprobado</th>
+                            <th>Saldo pendiente</th>
+                            <th>Fecha otorgamiento</th>
+                            <th>Vencimiento</th>
+                            <th>Estado</th>
+                            <th>Detalle</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr data-filter-empty th:if="${#lists.isEmpty(historialCreditos)}">
+                            <td colspan="10">No hay créditos o fiados otorgados para mostrar.</td>
+                        </tr>
+                        <tr th:each="c : ${historialCreditos}" th:attr="data-filter-value=${c.idSolicitud}">
+                            <td th:text="'#' + ${c.idSolicitud}">#0</td>
+                            <td th:text="${c.cliente}">Cliente</td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${c.tipoPrestamo != null ? ' ' + #strings.toLowerCase(c.tipoPrestamo) : ''}"
+                                      th:text="${c.tipoPrestamo != null ? c.tipoPrestamo : '—'}">TIPO</span>
+                            </td>
+                            <td th:text="${c.tienda}">Tienda</td>
+                            <td th:text="'$' + ${c.cupoAprobado}">$0.00</td>
+                            <td><strong th:text="'$' + ${c.saldoPendiente}">$0.00</strong></td>
+                            <td th:text="${c.fechaAprobacion != null ? c.fechaAprobacion : c.fechaSolicitud}">Fecha</td>
+                            <td th:text="${c.fechaVencimiento != null ? c.fechaVencimiento : ''}">Vencimiento</td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${c.estado != null ? ' ' + #strings.toLowerCase(c.estado) : ''}"
+                                      th:text="${c.estado}">ESTADO</span>
+                            </td>
+                            <td>
+                                <a class="button secondary tiny"
+                                   th:href="@{/vendedor/creditos/detalle(id=${c.idSolicitud})}">
+                                    Ver
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>

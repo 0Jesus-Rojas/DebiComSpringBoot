@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Solicitar crédito | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Solicitar Crédito</h1>
+                    <p>Complete el formulario para solicitar un nuevo crédito.</p>
+                </div>
+            </div>
+
+            <div class="card" th:if="${error != null and !#strings.isEmpty(error)}" style="margin-bottom:16px; border-left:4px solid #e74c3c;">
+                <strong>Error:</strong> <span th:text="${error}">Error</span>
+            </div>
+
+            <div class="card" th:if="${mensaje != null and !#strings.isEmpty(mensaje)}" style="margin-bottom:16px; border-left:4px solid #2ecc71;">
+                <strong th:text="${mensaje}">Mensaje</strong>
+                <span th:if="${idSolicitud != null}" th:text="' ID de solicitud: ' + ${idSolicitud}"></span>
+            </div>
+
+            <form class="card" th:action="@{/comprador/solicitar-credito}" method="post">
+                <div class="dark-grid">
+                    <label>Nombre completo
+                        <input th:value="${session.nombre != null ? session.nombre + ' ' + session.apellido : ''}" readonly>
+                    </label>
+
+                    <label>Cliente
+                        <input th:value="${idCliente != null ? idCliente : ''}" readonly>
+                    </label>
+
+                    <label class="full">Nombre de la tienda
+                        <input
+                                type="search"
+                                id="tiendaBusqueda"
+                                class="store-search"
+                                placeholder="Buscar por nombre o dirección..."
+                                autocomplete="off"
+                                aria-label="Buscar tienda">
+
+                        <select name="idTienda" id="idTienda" required>
+                            <option value="">Seleccione una tienda</option>
+                            <option th:each="tienda : ${tiendas}"
+                                    th:value="${tienda.idTienda}"
+                                    data-store
+                                    th:text="${tienda.nombreTienda} + ' — ' + ${tienda.direccion}">
+                                Tienda
+                            </option>
+                            <option value="" data-empty-search hidden disabled>
+                                No hay tiendas que coincidan con la búsqueda
+                            </option>
+                        </select>
+                    </label>
+
+                    <label>Monto solicitado
+                        <input type="number" name="monto" min="0.01" step="0.01" placeholder="0.00" required>
+                    </label>
+
+                    <label>Plazo para pagar
+                        <select name="plazo" required>
+                            <option value="15 días">15 días</option>
+                            <option value="21 días">21 días</option>
+                            <option value="1 mes">1 mes</option>
+                        </select>
+                    </label>
+
+                    <label class="full">Motivo del crédito
+                        <textarea name="descripcion" maxlength="255" placeholder="Describa el motivo de su solicitud"></textarea>
+                    </label>
+                </div>
+
+                <div class="credit-summary">
+                    <div><span>Estado inicial</span><b>Pendiente</b></div>
+                    <div><span>Fecha de solicitud</span><b>Automática</b></div>
+                    <div><span>Vencimiento</span><b>Según plazo seleccionado</b></div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="button primary" type="submit">Enviar solicitud</button>
+                    <a class="button secondary" th:href="@{/comprador/perfil}">Cancelar</a>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Historial de pagos | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Historial de pagos</h1>
+                    <p>Pagos realizados, ordenados del más reciente al más antiguo.</p>
+                </div>
+            </div>
+            <article class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Factura</th>
+                            <th>Origen</th>
+                            <th>Tienda</th>
+                            <th>Método</th>
+                            <th>Referencia</th>
+                            <th>Monto</th>
+                            <th>Observaciones</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(pagos)}">
+                            <td colspan="8">No hay pagos registrados.</td>
+                        </tr>
+
+                        <tr th:each="p : ${pagos}">
+                            <td th:text="${p.fechaPago}">Fecha</td>
+                            <td th:text="${p.idFactura}">0</td>
+                            <td th:text="${p.origen}">Origen</td>
+                            <td th:text="${p.tienda}">Tienda</td>
+                            <td th:text="${p.tipoPago}">Método</td>
+                            <td th:text="${p.numeroReferenciaPago}">Ref</td>
+                            <td th:text="${p.montoPagado != null ? '$' + p.montoPagado : '$0.00'}">
+                                $0.00
+                            </td>
+                            <td th:text="${p.observaciones != null ? p.observaciones : ''}">
+                            </td>
+                        </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>

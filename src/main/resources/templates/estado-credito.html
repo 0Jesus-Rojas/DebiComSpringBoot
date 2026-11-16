@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Estado del crédito | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main"
+          th:with="staff=${session.idRol != null and (session.idRol == 1 or session.idRol == 2 or session.idRol == 3)},
+                   s=${detalleCredito?.solicitud},
+                   cupo=${s != null and s.cupoAprobado != null ? s.cupoAprobado : 0},
+                   saldo=${s != null and s.saldoPendiente != null ? s.saldoPendiente : 0},
+                   disponible=${cupo - saldo > 0 ? cupo - saldo : 0}">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1 th:text="${detalleCredito != null ? 'Detalle de crédito' : 'Estado de mis créditos'}">Estado de mis créditos</h1>
+                    <p th:text="${detalleCredito != null ? 'Administra el cupo, agrega productos y consulta el saldo acumulado.' : 'Consulta el estado de tus solicitudes.'}">Consulta el estado de tus solicitudes.</p>
+                </div>
+            </div>
+
+            <article class="card" th:if="${ok == 'pago'}" style="margin-bottom:16px;border-left:4px solid #2ecc71;">
+                <strong>El pago fue aplicado correctamente.</strong>
+            </article>
+            <article class="card" th:if="${ok == 'credito-creado'}" style="margin-bottom:16px;border-left:4px solid #2ecc71;">
+                <strong>El crédito fue otorgado y quedó aprobado correctamente.</strong>
+            </article>
+            <article class="card" th:if="${ok == 'productos-agregados'}" style="margin-bottom:16px;border-left:4px solid #2ecc71;">
+                <strong>Los productos se agregaron al crédito y el inventario fue actualizado.</strong>
+            </article>
+            <article class="card" th:if="${error != null and !#strings.isEmpty(error)}" style="margin-bottom:16px;border-left:4px solid #e74c3c;">
+                <strong>Error:</strong> <span th:text="${error}">Error</span>
+            </article>
+
+            <!-- Vista Detalle (cuando existe detalleCredito) -->
+            <th:block th:if="${detalleCredito != null and s != null}">
+                <article class="card">
+                    <div class="metric-row">
+                        <article class="metric">
+                            <span class="label">Crédito</span>
+                            <strong th:text="'#' + ${s.idSolicitud}">#0</strong>
+                        </article>
+                        <article class="metric">
+                            <span class="label">Cliente</span>
+                            <strong th:text="${s.cliente}">Cliente</strong>
+                        </article>
+                        <article class="metric">
+                            <span class="label">Tienda</span>
+                            <strong th:text="${s.tienda}">Tienda</strong>
+                        </article>
+                        <article class="metric">
+                            <span class="label">Estado</span>
+                            <strong th:text="${s.estado}">Estado</strong>
+                        </article>
+                    </div>
+                    <div class="metric-row">
+                        <article class="metric">
+                            <span class="label">Cupo aprobado</span>
+                            <strong th:text="'$' + ${#numbers.formatDecimal(cupo, 1, 2)}">$0.00</strong>
+                        </article>
+                        <article class="metric warning">
+                            <span class="label">Saldo usado</span>
+                            <strong th:text="'$' + ${#numbers.formatDecimal(saldo, 1, 2)}">$0.00</strong>
+                        </article>
+                        <article class="metric success">
+                            <span class="label">Cupo disponible</span>
+                            <strong th:text="'$' + ${#numbers.formatDecimal(disponible, 1, 2)}">$0.00</strong>
+                        </article>
+                        <article class="metric">
+                            <span class="label">Vencimiento</span>
+                            <strong th:text="${s.fechaVencimiento}">Fecha</strong>
+                        </article>
+                    </div>
+                    <p>
+                        <b>Fecha creación:</b> <span th:text="${s.fechaSolicitud}">Fecha</span> ·
+                        <b>Aprobación:</b> <span th:text="${s.fechaAprobacion != null ? s.fechaAprobacion : '—'}">—</span>
+                    </p>
+                    <p><b>Observaciones:</b> <span th:text="${s.observaciones != null ? s.observaciones : ''}"></span></p>
+                </article>
+
+                <article class="card"
+                         th:if="${staff and #strings.equalsIgnoreCase(s.tipoPrestamo, 'CREDITO') and #strings.equalsIgnoreCase(s.estado, 'APROBADO') and disponible > 0 and s.fechaVencimiento != null and !s.fechaVencimiento.toLocalDate().isBefore(#temporals.createToday())}">
+                    <div class="card-title">
+                        <div>
+                            <h2>Agregar productos al crédito</h2>
+                            <p>Selecciona lo que el comprador llevará ahora. El total se acumula al saldo sin superar el cupo disponible de <b th:text="'$' + ${#numbers.formatDecimal(disponible, 1, 2)}">$0.00</b>.</p>
+                        </div>
+                    </div>
+                    <form method="post" th:action="@{/vendedor/creditos/consumir}" id="creditoConsumoForm">
+                        <input type="hidden" name="idSolicitud" th:value="${s.idSolicitud}">
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th>Agregar</th>
+                                    <th>Producto</th>
+                                    <th>Stock</th>
+                                    <th>Precio</th>
+                                    <th>Cantidad</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:if="${#lists.isEmpty(productosCredito)}">
+                                    <td colspan="6">No hay productos activos con stock disponible en esta tienda.</td>
+                                </tr>
+                                <tr th:each="p : ${productosCredito}">
+                                    <td>
+                                        <input type="checkbox" class="credito-check" name="idProducto"
+                                               th:value="${p.idProducto}" th:attr="data-id=${p.idProducto}">
+                                    </td>
+                                    <td>
+                                        <b th:text="${p.nombre}">Producto</b>
+                                        <th:block th:if="${p.descripcion != null and !#strings.isEmpty(p.descripcion)}">
+                                            <br><small th:text="${p.descripcion}"></small>
+                                        </th:block>
+                                    </td>
+                                    <td th:text="${p.stock}">0</td>
+                                    <td class="credito-price" th:attr="data-price=${p.precioUnitario}" th:text="'$' + ${p.precioUnitario}">$0.00</td>
+                                    <td>
+                                        <input type="number" class="credito-qty"
+                                               th:name="'cantidad_' + ${p.idProducto}"
+                                               th:attr="data-id=${p.idProducto}"
+                                               min="1" th:max="${p.stock}" value="1" disabled style="max-width:110px">
+                                    </td>
+                                    <td>$<span class="credito-line" th:attr="data-id=${p.idProducto}">0.00</span></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="metric-row">
+                            <article class="metric">
+                                <span class="label">Cupo disponible</span>
+                                <strong th:text="'$' + ${#numbers.formatDecimal(disponible, 1, 2)}">$0.00</strong>
+                            </article>
+                            <article class="metric success">
+                                <span class="label">Total de esta compra</span>
+                                <strong>$<span id="creditoGrandTotal">0.00</span></strong>
+                            </article>
+                            <article class="metric">
+                                <span class="label">Cupo restante</span>
+                                <strong>$<span id="creditoRemaining" th:text="${#numbers.formatDecimal(disponible, 1, 2)}">0.00</span></strong>
+                            </article>
+                        </div>
+                        <div class="form-actions">
+                            <button class="button primary" type="submit">Agregar productos al crédito</button>
+                            <a class="button secondary" th:href="@{/vendedor/dashboard}">Volver al panel</a>
+                        </div>
+                    </form>
+                </article>
+
+                <article class="card">
+                    <h2>Productos consumidos con este crédito</h2>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio unitario</th>
+                                <th>Subtotal</th>
+                                <th>Stock actual</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${#lists.isEmpty(detalleCredito.productos)}">
+                                <td colspan="5">Todavía no se han agregado productos a este crédito.</td>
+                            </tr>
+                            <tr th:each="p : ${detalleCredito.productos}">
+                                <td th:text="${p.nombre}">Producto</td>
+                                <td th:text="${p.cantidad}">0</td>
+                                <td th:text="'$' + ${p.precioUnitario}">$0.00</td>
+                                <td th:text="'$' + ${p.subtotal}">$0.00</td>
+                                <td th:text="${p.stock}">0</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <article class="card" th:if="${staff and saldo > 0}">
+                    <h2>Registrar pago</h2>
+                    <p>El pago reduce el saldo acumulado del crédito.</p>
+                    <form class="dark-grid" method="post" th:action="@{/vendedor/pagos/registrar}">
+                        <input type="hidden" name="idSolicitud" th:value="${s.idSolicitud}">
+                        <label>Monto a pagar
+                            <input type="number" name="monto" min="0.01" th:max="${saldo}" step="0.01" required placeholder="0.00">
+                        </label>
+                        <div class="form-actions">
+                            <button class="button primary" type="submit">Registrar pago</button>
+                            <a class="button secondary" th:href="@{/vendedor/creditos-pendientes}">Volver</a>
+                        </div>
+                    </form>
+                </article>
+            </th:block>
+
+            <!-- Vista Listado (cuando detalleCredito es null) -->
+            <article class="card" th:if="${detalleCredito == null}">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Préstamo</th>
+                            <th>Tipo</th>
+                            <th>Tienda</th>
+                            <th>Cupo / valor</th>
+                            <th>Saldo pendiente</th>
+                            <th>Solicitud</th>
+                            <th>Vencimiento</th>
+                            <th>Estado</th>
+                            <th>Detalle</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(solicitudes)}">
+                            <td colspan="9">No hay créditos ni fiados registrados.</td>
+                        </tr>
+                        <tr th:each="item : ${solicitudes}">
+                            <td th:text="'#' + ${item.idSolicitud}">#0</td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${item.tipoPrestamo != null ? ' ' + #strings.toLowerCase(item.tipoPrestamo) : ''}"
+                                      th:text="${item.tipoPrestamo != null ? item.tipoPrestamo : '—'}">TIPO</span>
+                            </td>
+                            <td th:text="${item.tienda}">Tienda</td>
+                            <td th:text="'$' + ${#strings.equalsIgnoreCase(item.tipoPrestamo, 'CREDITO') ? (item.cupoAprobado != null ? item.cupoAprobado : 0) : (item.montoTotal != null ? item.montoTotal : 0)}">$0.00</td>
+                            <td><strong th:text="'$' + ${item.saldoPendiente}">$0.00</strong></td>
+                            <td th:text="${item.fechaSolicitud}">Fecha</td>
+                            <td th:text="${item.fechaVencimiento}">Vencimiento</td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${item.estado != null ? ' ' + #strings.toLowerCase(item.estado) : ''}"
+                                      th:text="${item.estado}">ESTADO</span>
+                            </td>
+                            <td>
+                                <a class="button secondary tiny"
+                                   th:href="@{/comprador/estado-credito/detalle(id=${item.idSolicitud})}">
+                                    Ver detalle
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <script th:inline="javascript">
+                (function () {
+                    const checks = [...document.querySelectorAll('.credito-check')],
+                        qtys = [...document.querySelectorAll('.credito-qty')];
+                    const total = document.getElementById('creditoGrandTotal'),
+                        remaining = document.getElementById('creditoRemaining');
+                    const disponible = /*[[${disponible}]]*/ 0;
+
+                    function update() {
+                        let sum = 0;
+                        checks.forEach(c => {
+                            const q = qtys.find(x => x.dataset.id === c.dataset.id),
+                                line = document.querySelector('.credito-line[data-id="' + c.dataset.id + '"]');
+                            if (!q) return;
+                            if (c.checked) {
+                                q.disabled = false;
+                                let n = Math.max(1, parseInt(q.value || '1'));
+                                q.value = n;
+                                let price = parseFloat(document.querySelector('.credito-price', c.closest('tr')).dataset.price) || 0;
+                                let sub = price * n;
+                                sum += sub;
+                                line.textContent = sub.toFixed(2);
+                            } else {
+                                q.disabled = true;
+                                line.textContent = '0.00';
+                            }
+                        });
+                        if (total) total.textContent = sum.toFixed(2);
+                        if (remaining) remaining.textContent = Math.max(0, disponible - sum).toFixed(2);
+                    }
+
+                    checks.forEach(c => c.addEventListener('change', update));
+                    qtys.forEach(q => q.addEventListener('input', update));
+                    update();
+
+                    const form = document.getElementById('creditoConsumoForm');
+                    if (form) {
+                        form.addEventListener('submit', e => {
+                            if (!checks.some(c => c.checked)) {
+                                e.preventDefault();
+                                alert('Selecciona al menos un producto.');
+                                return;
+                            }
+                            const v = parseFloat(total.textContent || '0');
+                            if (v <= 0 || v > disponible + 0.0001) {
+                                e.preventDefault();
+                                alert('El total supera el cupo disponible.');
+                            }
+                        });
+                    }
+                })();
+            </script>
+        </section>
+    </main>
+</div>
+</body>
+</html>

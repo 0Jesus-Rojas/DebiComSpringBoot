@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Registrarse como vendedor | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Registrarse como vendedor</h1>
+                    <p>Convierte tu cuenta de comprador en una cuenta de vendedor.</p>
+                </div>
+            </div>
+
+            <article class="card" th:if="${error != null and !#strings.isEmpty(error)}" style="margin-bottom:16px;border-left:4px solid #e74c3c;">
+                <strong>Error:</strong> <span th:text="${error}">Error</span>
+            </article>
+
+            <article class="card">
+                <h2>Confirmación</h2>
+                <p>Al continuar podrás crear una o varias tiendas y administrar su inventario.</p>
+                <form method="post" th:action="@{/comprador/registrarse-vendedor}">
+                    <div class="form-actions">
+                        <button class="button primary" type="submit">Confirmar registro como vendedor</button>
+                        <a class="button secondary" th:href="@{/comprador/perfil}">Cancelar</a>
+                    </div>
+                </form>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>

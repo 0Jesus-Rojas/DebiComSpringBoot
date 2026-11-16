@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Acceso denegado | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <article class="card">
+                <h1>Acceso no disponible</h1>
+                <p th:text="${param.motivo != null and #strings.equalsIgnoreCase(param.motivo[0], 'sin-rol') ? 'Tu usuario está autenticado, pero todavía no tiene un rol asignado.' : (param.motivo != null and #strings.equalsIgnoreCase(param.motivo[0], 'rol') ? 'Tu rol actual no tiene permisos para acceder a esta sección.' : 'No tienes permisos para acceder a esta sección.')}">
+                    No tienes permisos para acceder a esta sección.
+                </p>
+
+                <div class="form-actions">
+                    <a class="button primary" th:href="@{/comprador/estado-credito}">
+                        Ir al dashboard
+                    </a>
+
+                    <a class="button secondary" th:href="@{/comprador/perfil}">
+                        Ver mi perfil
+                    </a>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>

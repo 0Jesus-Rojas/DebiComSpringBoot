@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="sidebar">
+
+    <!-- ENCABEZADO SUPERIOR -->
+    <header class="app-header">
+
+        <div class="app-header-logo">
+            <span class="app-header-logo-mark">D</span>
+            <span>Debi<b>Com</b></span>
+        </div>
+
+        <!-- MENÚ DE USUARIO -->
+        <div class="user-menu">
+
+            <button type="button"
+                    class="user-menu-trigger"
+                    aria-label="Menú de usuario"
+                    aria-expanded="false">
+
+                <span class="user-avatar"
+                      th:text="${#strings.isEmpty(session.nombre) ? 'U' : #strings.toUpperCase(#strings.substring(session.nombre, 0, 1))}">
+                    U
+                </span>
+
+                <span th:text="${(session.nombre != null ? session.nombre : 'Usuario') +
+                    (session.apellido != null ? ' ' + session.apellido : '')}">
+                    Usuario
+                </span>
+
+                <svg class="user-menu-chevron" viewBox="0 0 24 24">
+                    <path d="m6 9 6 6 6-6"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"/>
+                </svg>
+
+            </button>
+
+            <div class="user-dropdown" aria-hidden="true">
+
+                <a th:href="@{/comprador/perfil}">
+                    Mi perfil
+                </a>
+
+                <a th:href="@{/logout}"
+                   class="logout-link"
+                   data-logout-confirm>
+                    Cerrar sesión
+                </a>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- BARRA LATERAL -->
+    <aside class="sidebar">
+
+        <nav aria-label="Navegación principal">
+
+            <!-- MENÚ PARA COMPRADORES -->
+            <div th:if="${session.idUsuario != null}">
+
+                <p class="nav-title">COMPRADOR</p>
+
+                <a class="nav-link"
+                   th:href="@{/comprador/estado-credito}">
+                    Estado de crédito
+                </a>
+
+                <a class="nav-link"
+                   th:href="@{/comprador/solicitar-credito}">
+                    Solicitar crédito
+                </a>
+
+                <a class="nav-link"
+                   th:href="@{/comprador/deudas}">
+                    Consultar deudas
+                </a>
+
+                <a class="nav-link"
+                   th:href="@{/comprador/historial-pagos}">
+                    Historial de pagos
+                </a>
+
+                <p class="nav-title">OPCIONES DE CUENTA</p>
+
+                <div th:if="${session.idRol == null or (session.idRol != 1 and session.idRol != 2 and session.idRol != 3)}">
+                <a class="nav-link"
+                   th:href="@{/comprador/registrarse-vendedor}">
+                    Registrarse como vendedor
+                </a>
+
+            </div>
+
+
+            <!-- MENÚ PARA VENDEDORES -->
+            <div th:if="${session.idRol != null and
+                         (session.idRol == 1 or session.idRol == 2 or session.idRol == 3)}">
+
+                <p class="nav-title">VENDEDOR</p>
+
+                <a class="nav-link"
+                   th:href="@{/vendedor/dashboard}">
+                    Panel de control
+                </a>
+
+                <a class="nav-link"
+                   th:href="@{/vendedor/creditos}">
+                    Solicitudes de crédito
+                </a>
+
+                <a class="nav-link"
+                   th:href="@{/vendedor/creditos-pendientes}">
+                    Créditos pendientes
+                </a>
+
+                <a class="nav-link"
+                   th:href="@{/vendedor/creditos/otorgar}">
+                    Asignar crédito
+                </a>
+
+                <a class="nav-link"
+                   th:href="@{/vendedor/fiados/asignar}">
+                    Asignar fiado
+                </a>
+
+                <a class="nav-link"
+                   th:href="@{/vendedor/tienda}">
+                    Gestionar tienda
+                </a>
+
+                <a class="nav-link"
+                   th:href="@{/vendedor/inventario}">
+                    Inventario
+                </a>
+
+                <a class="nav-link"
+                   th:href="@{/vendedor/ventas-directas}">
+                    Ventas directas
+                </a>
+
+                <a class="nav-link"
+                   th:href="@{/vendedor/historial-creditos}">
+                    Historial de créditos
+                </a>
+
+                <a class="nav-link"
+                   th:href="@{/vendedor/historial-pagos}">
+                    Historial de pagos
+                </a>
+
+            </div>
+
+        </nav>
+
+    </aside>
+
+    <!-- JavaScript compartido -->
+    <script th:src="@{/js/main.js}" defer></script>
+
+</th:block>
+
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Deudas pendientes | DebiCom</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Deudas pendientes</h1>
+                    <p>Consulta a quién debes, cuánto y la fecha de vencimiento.</p>
+                </div>
+            </div>
+            <div class="metric-row">
+                <article class="metric">
+                    <span class="label">Deuda total</span>
+                    <strong th:text="'$' + ${deudaTotal != null ? deudaTotal : '0.00'}">$0.00</strong>
+                </article>
+                <article class="metric success">
+                    <span class="label">Al día</span>
+                    <strong th:text="${pagosAlDia != null ? pagosAlDia : 0}">0</strong>
+                </article>
+                <article class="metric danger">
+                    <span class="label">Vencidas</span>
+                    <strong th:text="${pagosVencidos != null ? pagosVencidos : 0}">0</strong>
+                </article>
+            </div>
+            <article class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Tienda</th>
+                            <th>Monto original</th>
+                            <th>Saldo</th>
+                            <th>Fecha de vencimiento</th>
+                            <th>Estado</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(deudas)}">
+                            <td colspan="6">No tienes deudas pendientes.</td>
+                        </tr>
+                        <tr th:each="d : ${deudas}">
+                            <td th:text="${(d.tipoPrestamo != null ? d.tipoPrestamo : 'Deuda') + ' #' + d.idSolicitud}">Deuda #0</td>
+                            <td th:text="${d.tienda}">Tienda</td>
+                            <td th:text="'$' + ${d.montoOriginal}">$0.00</td>
+                            <td th:text="'$' + ${d.saldoPendiente}">$0.00</td>
+                            <td th:text="${d.fechaVencimiento}">Fecha</td>
+                            <td th:text="${d.estado}">Estado</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>
