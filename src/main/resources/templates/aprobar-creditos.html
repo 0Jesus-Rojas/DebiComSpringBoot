@@ -1,76 +1,295 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Aprobar / rechazar créditos | DebiCom</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Aprobar / Rechazar créditos | DebiCom</title>
+
+    <!-- Bootstrap 5.3.3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet">
 
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
-<body class="app-body">
-<div class="app-shell">
-    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-    <main class="app-main">
-        <section class="page-content container-fluid px-3 px-md-4 px-xl-5 py-3 py-lg-4">
-            <div class="page-heading d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
-                <div>
-                    <h1>Aprobar / Rechazar créditos</h1>
-                    <p>Esta pantalla muestra exclusivamente solicitudes que están pendientes.</p>
-                </div>
-                <a class="button secondary text-center" th:href="@{/vendedor/historial-creditos}">
-                    Ver historial
-                </a>
+
+<body class="bg-dark text-white min-vh-100">
+
+<!-- CONTENEDOR PRINCIPAL -->
+<div class="container-fluid p-0">
+
+    <!-- SIDEBAR -->
+    <div th:replace="~{fragments/sidebar :: sidebar}">
+    </div>
+
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="container-fluid px-3 px-md-4 px-xl-5 py-4">
+
+        <!-- ENCABEZADO -->
+        <div class="d-flex flex-column flex-md-row
+                        justify-content-between align-items-start
+                        align-items-md-center gap-3 mb-4">
+
+            <div>
+
+                <h1 class="h2 fw-bold mb-2">
+
+                    Aprobar / Rechazar créditos
+
+                </h1>
+
+                <p class="text-white-50 mb-0">
+
+                    Esta pantalla muestra exclusivamente solicitudes
+                    que están pendientes.
+
+                </p>
+
             </div>
 
-            <article class="card empty-state mb-4" th:if="${#lists.isEmpty(solicitudes)}">
-                <h2>No hay solicitudes pendientes</h2>
-                <p>Todas las solicitudes de tus tiendas ya fueron procesadas.</p>
-            </article>
 
-            <article class="card request-card mb-4 row g-3 d-flex flex-row flex-wrap" th:each="s : ${solicitudes}">
-                <div class="col-12 col-lg-4">
-                    <h3 th:text="${s.cliente}">Cliente</h3>
-                    <small th:text="'Solicitud #' + ${s.idSolicitud} + ' · ' + ${s.tienda}">Solicitud</small>
+            <a class="btn btn-outline-light px-4"
+               th:href="@{/vendedor/historial-creditos}">
+
+                Ver historial
+
+            </a>
+
+        </div>
+
+
+        <!-- ====================================== -->
+        <!-- ESTADO SIN SOLICITUDES                 -->
+        <!-- ====================================== -->
+
+        <div th:if="${#lists.isEmpty(solicitudes)}"
+             class="card bg-secondary bg-opacity-10
+                        border border-secondary rounded-4 shadow-sm mb-4">
+
+            <div class="card-body text-center p-4 p-md-5">
+
+                <div class="display-4 text-white-50 mb-3">
+
+                    &#10003;
+
                 </div>
-                <div class="col-6 col-sm-4 col-lg-2">
-                    <span>Cupo solicitado</span>
-                    <b th:text="'$' + ${s.cupoAprobado}">$0.00</b>
+
+                <h2 class="h4 fw-bold mb-2">
+
+                    No hay solicitudes pendientes
+
+                </h2>
+
+                <p class="text-white-50 mb-0">
+
+                    Todas las solicitudes de tus tiendas
+                    ya fueron procesadas.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ====================================== -->
+        <!-- LISTADO DE SOLICITUDES                 -->
+        <!-- ====================================== -->
+
+        <div th:each="s : ${solicitudes}"
+             class="card bg-secondary bg-opacity-10
+                        border border-secondary rounded-4
+                        shadow-sm mb-4">
+
+            <div class="card-body p-3 p-md-4">
+
+                <!-- INFORMACIÓN PRINCIPAL -->
+                <div class="row g-4">
+
+                    <!-- CLIENTE -->
+                    <div class="col-12 col-lg-4">
+
+                        <p class="text-white-50 small mb-1">
+
+                            CLIENTE
+
+                        </p>
+
+                        <h3 class="h5 fw-bold mb-2"
+                            th:text="${s.cliente}">
+
+                            Cliente
+
+                        </h3>
+
+                        <span class="text-white-50 small"
+                              th:text="'Solicitud #' + s.idSolicitud + ' · ' + s.tienda">
+
+                                Solicitud
+
+                            </span>
+
+                    </div>
+
+
+                    <!-- CUPO SOLICITADO -->
+                    <div class="col-6 col-sm-4 col-lg-2">
+
+                        <p class="text-white-50 small mb-1">
+
+                            CUPO SOLICITADO
+
+                        </p>
+
+                        <p class="fw-semibold fs-5 mb-0"
+                           th:text="'$' + s.cupoAprobado">
+
+                            $0.00
+
+                        </p>
+
+                    </div>
+
+
+                    <!-- SALDO -->
+                    <div class="col-6 col-sm-4 col-lg-2">
+
+                        <p class="text-white-50 small mb-1">
+
+                            SALDO
+
+                        </p>
+
+                        <p class="fw-semibold fs-5 mb-0"
+                           th:text="'$' + s.saldoPendiente">
+
+                            $0.00
+
+                        </p>
+
+                    </div>
+
+
+                    <!-- FECHA -->
+                    <div class="col-6 col-sm-4 col-lg-2">
+
+                        <p class="text-white-50 small mb-1">
+
+                            SOLICITUD
+
+                        </p>
+
+                        <p class="fw-semibold mb-0"
+                           th:text="${s.fechaSolicitud}">
+
+                            Fecha
+
+                        </p>
+
+                    </div>
+
+
+                    <!-- ESTADO -->
+                    <div class="col-6 col-sm-4 col-lg-2">
+
+                        <p class="text-white-50 small mb-1">
+
+                            ESTADO
+
+                        </p>
+
+                        <span class="badge bg-warning text-dark px-3 py-2"
+                              th:text="${s.estado}">
+
+                                PENDIENTE
+
+                            </span>
+
+                    </div>
+
                 </div>
-                <div class="col-6 col-sm-4 col-lg-2">
-                    <span>Saldo</span>
-                    <b th:text="'$' + ${s.saldoPendiente}">$0.00</b>
-                </div>
-                <div class="col-6 col-sm-4 col-lg-2">
-                    <span>Solicitud</span>
-                    <b th:text="${s.fechaSolicitud}">Fecha</b>
-                </div>
-                <div class="col-6 col-sm-4 col-lg-2">
-                    <span>Estado</span>
-                    <b class="pending" th:text="${s.estado}">PENDIENTE</b>
-                </div>
-                <div class="request-actions col-12 d-flex flex-wrap align-items-center gap-2">
-                    <a class="button secondary text-center"
+
+
+                <!-- SEPARADOR -->
+                <hr class="border-secondary my-4">
+
+
+                <!-- ACCIONES -->
+                <div class="d-flex flex-column flex-sm-row
+                                flex-wrap align-items-stretch
+                                align-items-sm-center gap-2">
+
+                    <!-- VER DETALLES -->
+                    <a class="btn btn-outline-light px-4"
                        th:href="@{/vendedor/creditos/detalle(id=${s.idSolicitud})}">
+
                         Ver detalles
+
                     </a>
 
-                    <form method="post" th:action="@{/vendedor/creditos/estado}" class="m-0">
-                        <input type="hidden" name="idSolicitud" th:value="${s.idSolicitud}">
-                        <input type="hidden" name="estado" value="APROBADO">
-                        <button class="button primary" type="submit">Aprobar</button>
+
+                    <!-- APROBAR -->
+                    <form method="post"
+                          th:action="@{/vendedor/creditos/estado}"
+                          class="m-0">
+
+                        <input type="hidden"
+                               name="idSolicitud"
+                               th:value="${s.idSolicitud}">
+
+                        <input type="hidden"
+                               name="estado"
+                               value="APROBADO">
+
+                        <button class="btn btn-primary px-4 w-100"
+                                type="submit">
+
+                            Aprobar
+
+                        </button>
+
                     </form>
 
-                    <form method="post" th:action="@{/vendedor/creditos/estado}" class="m-0">
-                        <input type="hidden" name="idSolicitud" th:value="${s.idSolicitud}">
-                        <input type="hidden" name="estado" value="RECHAZADO">
-                        <button class="button danger" type="submit">Rechazar</button>
+
+                    <!-- RECHAZAR -->
+                    <form method="post"
+                          th:action="@{/vendedor/creditos/estado}"
+                          class="m-0">
+
+                        <input type="hidden"
+                               name="idSolicitud"
+                               th:value="${s.idSolicitud}">
+
+                        <input type="hidden"
+                               name="estado"
+                               value="RECHAZADO">
+
+                        <button class="btn btn-danger px-4 w-100"
+                                type="submit">
+
+                            Rechazar
+
+                        </button>
+
                     </form>
+
                 </div>
-            </article>
-        </section>
+
+            </div>
+
+        </div>
+
     </main>
+
 </div>
+
+
+<!-- BOOTSTRAP JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
 </body>
 </html>

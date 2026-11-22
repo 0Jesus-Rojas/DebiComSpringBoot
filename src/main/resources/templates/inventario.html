@@ -1,207 +1,641 @@
+
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>Inventario | DebiCom</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet">
-
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
-<body class="app-body">
-<div class="app-shell">
-    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-    <main class="app-main">
-        <section class="page-content container-fluid px-3 px-md-4 px-xl-5 py-3 py-lg-4">
-            <div class="page-heading d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
-                <div>
-                    <h1>Inventario</h1>
-                    <p>Productos de la tienda seleccionada.</p>
-                </div>
-            </div>
 
-            <article class="card mb-4" th:if="${ok == 'producto'}" style="margin-bottom:16px;border-left:4px solid #2ecc71;">
-                <strong>El producto fue registrado correctamente.</strong>
-            </article>
+<body class="bg-light">
 
-            <article class="card mb-4" th:if="${ok == 'actualizado'}" style="margin-bottom:16px;border-left:4px solid #2ecc71;">
-                <strong>El producto fue actualizado correctamente.</strong>
-            </article>
+<div class="container-fluid p-0">
+    <div class="row g-0 min-vh-100">
 
-            <article class="card mb-4" th:if="${error != null and !#strings.isEmpty(error)}" style="margin-bottom:16px;border-left:4px solid #e74c3c;">
-                <strong>Error:</strong> <span th:text="${error}">Error</span>
-            </article>
+        <!-- Sidebar -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-            <form method="get" class="card" th:action="@{/vendedor/inventario}">
-                <div class="dark-grid row g-3 d-flex flex-wrap">
-                    <label class="col-12 col-md-6">Tienda
-                        <select name="idTienda" onchange="this.form.submit()" required class="form-select">
-                            <option th:each="t : ${tiendas}"
-                                    th:value="${t.idTienda}"
-                                    th:selected="${idTienda != null and idTienda == t.idTienda}"
-                                    th:text="${t.nombreTienda}">
-                                Tienda
-                            </option>
-                        </select>
-                    </label>
-                    <label class="col-12 col-md-6">Buscar por nombre
-                        <input name="search" th:value="${search != null ? search : ''}" placeholder="Ej: arroz" class="form-control">
-                    </label>
-                    <div class="form-actions d-grid d-sm-flex flex-wrap gap-2 justify-content-sm-end mt-3 col-12">
-                        <button class="button primary" type="submit">Buscar</button>
-                    </div>
-                </div>
-            </form>
+        <!-- Contenido principal -->
+        <main class="col-12 col-lg-9 col-xl-10">
 
-            <th:block th:if="${idTienda != null and idTienda > 0}">
-                <article class="card mb-4">
-                    <h2>Agregar producto</h2>
-                    <form class="dark-grid row g-3 d-flex flex-wrap" method="post" th:action="@{/vendedor/inventario}">
-                        <input type="hidden" name="idTienda" th:value="${idTienda}">
-                        <label class="col-12 col-md-6">Nombre
-                            <input name="nombre" maxlength="100" required placeholder="Ej. Arroz 1 kg" class="form-control">
-                        </label>
-                        <label class="col-12 col-md-6">Precio unitario
-                            <input type="number" name="precio" min="0.01" step="0.01" required placeholder="0.00" class="form-control">
-                        </label>
-                        <label class="col-12 col-md-6">Stock inicial
-                            <input type="number" name="stock" min="0" step="1" value="0" required class="form-control">
-                        </label>
-                        <label class="col-12 col-md-6">Unidad
-                            <select name="idUnidad" required class="form-select">
-                                <option value="">Seleccione</option>
-                                <option th:each="u : ${unidades}"
-                                        th:value="${u.idUnidad}"
-                                        th:text="${u.nombreUnidad}">
-                                    Unidad
-                                </option>
-                            </select>
-                        </label>
-                        <label class="col-12 col-md-6">Estado
-                            <select name="idEstadoProducto" required class="form-select">
-                                <option th:each="e : ${estadosProducto}"
-                                        th:value="${e.idEstadoProducto}"
-                                        th:selected="${e.idEstadoProducto == 1}"
-                                        th:text="${e.nombreEstado}">
-                                    Estado
-                                </option>
-                            </select>
-                        </label>
-                        <label class="full col-12">Descripción
-                            <textarea name="descripcion" maxlength="255" placeholder="Descripción del producto" class="form-control"></textarea>
-                        </label>
-                        <div class="form-actions d-grid d-sm-flex flex-wrap gap-2 justify-content-sm-end mt-3 col-12">
-                            <button class="button primary" type="submit">Agregar producto</button>
-                        </div>
-                    </form>
-                </article>
+            <section class="container-fluid px-3 px-md-4 px-xl-5 py-4">
 
-                <article class="card mb-4" th:if="${productoEditar != null}" style="margin-top:16px;">
-                    <h2>Editar producto</h2>
-                    <form class="dark-grid row g-3 d-flex flex-wrap" method="post" th:action="@{/vendedor/inventario}">
-                        <input type="hidden" name="accion" value="actualizar">
-                        <input type="hidden" name="idProducto" th:value="${productoEditar.idProducto}">
-                        <input type="hidden" name="idTienda" th:value="${productoEditar.idTienda}">
+                <!-- Encabezado -->
+                <div class="mb-4">
+                    <h1 class="h3 fw-bold mb-2">
+                        Inventario
+                    </h1>
 
-                        <label class="col-12 col-md-6">Nombre
-                            <input name="nombre" maxlength="100" required th:value="${productoEditar.nombre}" class="form-control">
-                        </label>
-                        <label class="col-12 col-md-6">Precio unitario
-                            <input type="number" name="precio" min="0.01" step="0.01" required th:value="${productoEditar.precioUnitario}" class="form-control">
-                        </label>
-                        <label class="col-12 col-md-6">Stock
-                            <input type="number" name="stock" min="0" step="1" required th:value="${productoEditar.stock}" class="form-control">
-                        </label>
-                        <label class="col-12 col-md-6">Unidad
-                            <select name="idUnidad" required class="form-select">
-                                <option th:each="u : ${unidades}"
-                                        th:value="${u.idUnidad}"
-                                        th:selected="${u.idUnidad == productoEditar.idUnidad}"
-                                        th:text="${u.nombreUnidad}">
-                                    Unidad
-                                </option>
-                            </select>
-                        </label>
-                        <label class="col-12 col-md-6">Estado
-                            <select name="idEstadoProducto" required class="form-select">
-                                <option th:each="e : ${estadosProducto}"
-                                        th:value="${e.idEstadoProducto}"
-                                        th:selected="${e.idEstadoProducto == productoEditar.idEstadoProducto}"
-                                        th:text="${e.nombreEstado}">
-                                    Estado
-                                </option>
-                            </select>
-                        </label>
-                        <label class="full col-12">Descripción
-                            <textarea name="descripcion" maxlength="255" th:text="${productoEditar.descripcion != null ? productoEditar.descripcion : ''}" class="form-control"></textarea>
-                        </label>
-                        <div class="form-actions d-grid d-sm-flex flex-wrap gap-2 justify-content-sm-end mt-3 col-12">
-                            <button class="button primary" type="submit">Guardar cambios</button>
-                            <a class="button secondary text-center" th:href="@{/vendedor/inventario(idTienda=${idTienda})}">Cancelar</a>
-                        </div>
-                    </form>
-                </article>
-
-                <div class="row g-3 mb-3">
-                    <article class="metric col-12 col-sm-6 col-xl-3">
-                        <span class="label">Productos activos</span>
-                        <strong th:text="${metricasInventario != null ? metricasInventario.activos : 0}">0</strong>
-                    </article>
-                    <article class="metric success col-12 col-sm-6 col-xl-3">
-                        <span class="label">Disponibles</span>
-                        <strong th:text="${metricasInventario != null ? metricasInventario.disponibles : 0}">0</strong>
-                    </article>
-                    <article class="metric warning col-12 col-sm-6 col-xl-3">
-                        <span class="label">A punto de agotarse</span>
-                        <strong th:text="${metricasInventario != null ? metricasInventario.bajoStock : 0}">0</strong>
-                    </article>
-                    <article class="metric danger col-12 col-sm-6 col-xl-3">
-                        <span class="label">Agotados</span>
-                        <strong th:text="${metricasInventario != null ? metricasInventario.agotados : 0}">0</strong>
-                    </article>
+                    <p class="text-secondary mb-0">
+                        Productos de la tienda seleccionada.
+                    </p>
                 </div>
 
-                <article class="card mb-4">
-                    <div class="table-wrap table-responsive">
-                        <table class="align-middle">
-                            <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Stock</th>
-                                <th>Unidad</th>
-                                <th>Estado</th>
-                                <th>Precio</th>
-                                <th>Acción</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:if="${#lists.isEmpty(productos)}">
-                                <td colspan="6">No hay productos registrados en esta tienda.</td>
-                            </tr>
-                            <tr th:each="p : ${productos}">
-                                <td>
-                                    <b th:text="${p.nombre}">Producto</b>
-                                    <th:block th:if="${p.descripcion != null and !#strings.isEmpty(p.descripcion)}">
-                                        <br><small th:text="${p.descripcion}"></small>
-                                    </th:block>
-                                </td>
-                                <td th:text="${p.stock}">0</td>
-                                <td th:text="${p.unidad != null ? p.unidad : ''}">Unidad</td>
-                                <td th:text="${p.estado != null ? p.estado : ''}">Estado</td>
-                                <td th:text="'$' + ${p.precioUnitario}">$0.00</td>
-                                <td>
-                                    <a class="button secondary tiny text-center"
-                                       th:href="@{/vendedor/inventario(idTienda=${idTienda}, editarId=${p.idProducto})}">Editar</a>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+                <!-- Mensajes de éxito -->
+                <div class="alert alert-success d-flex align-items-center gap-2 mb-3"
+                     role="alert"
+                     th:if="${ok == 'producto'}">
+
+                    <strong>
+                        El producto fue registrado correctamente.
+                    </strong>
+                </div>
+
+                <div class="alert alert-success d-flex align-items-center gap-2 mb-3"
+                     role="alert"
+                     th:if="${ok == 'actualizado'}">
+
+                    <strong>
+                        El producto fue actualizado correctamente.
+                    </strong>
+                </div>
+
+                <!-- Mensaje de error -->
+                <div class="alert alert-danger mb-3"
+                     role="alert"
+                     th:if="${error != null and !#strings.isEmpty(error)}">
+
+                    <strong>Error:</strong>
+                    <span th:text="${error}">Error</span>
+                </div>
+
+                <!-- Selección de tienda y búsqueda -->
+                <article class="card border-0 shadow-sm mb-4">
+
+                    <div class="card-body p-3 p-md-4">
+
+                        <form method="get"
+                              th:action="@{/vendedor/inventario}">
+
+                            <div class="row g-3 align-items-end">
+
+                                <div class="col-12 col-md-6">
+
+                                    <label for="idTienda"
+                                           class="form-label fw-semibold">
+                                        Tienda
+                                    </label>
+
+                                    <select id="idTienda"
+                                            name="idTienda"
+                                            onchange="this.form.submit()"
+                                            required
+                                            class="form-select">
+
+                                        <option th:each="t : ${tiendas}"
+                                                th:value="${t.idTienda}"
+                                                th:selected="${idTienda != null and idTienda == t.idTienda}"
+                                                th:text="${t.nombreTienda}">
+                                            Tienda
+                                        </option>
+
+                                    </select>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+
+                                    <label for="search"
+                                           class="form-label fw-semibold">
+                                        Buscar por nombre
+                                    </label>
+
+                                    <input id="search"
+                                           name="search"
+                                           type="text"
+                                           th:value="${search != null ? search : ''}"
+                                           placeholder="Ej: arroz"
+                                           class="form-control">
+                                </div>
+
+                                <div class="col-12 d-grid d-sm-flex justify-content-sm-end">
+
+                                    <button class="btn btn-primary px-4"
+                                            type="submit">
+                                        Buscar
+                                    </button>
+
+                                </div>
+
+                            </div>
+                        </form>
+
                     </div>
                 </article>
-            </th:block>
-        </section>
-    </main>
+
+                <!-- Contenido disponible al seleccionar una tienda -->
+                <th:block th:if="${idTienda != null and idTienda > 0}">
+
+                    <!-- Agregar producto -->
+                    <article class="card border-0 shadow-sm mb-4">
+
+                        <div class="card-header bg-white border-0 px-3 px-md-4 pt-4">
+                            <h2 class="h5 fw-bold mb-1">
+                                Agregar producto
+                            </h2>
+
+                            <p class="small text-secondary mb-0">
+                                Registra un nuevo producto en esta tienda.
+                            </p>
+                        </div>
+
+                        <div class="card-body p-3 p-md-4">
+
+                            <form method="post"
+                                  th:action="@{/vendedor/inventario}">
+
+                                <input type="hidden"
+                                       name="idTienda"
+                                       th:value="${idTienda}">
+
+                                <div class="row g-3">
+
+                                    <div class="col-12 col-md-6">
+                                        <label for="nombreNuevo"
+                                               class="form-label fw-semibold">
+                                            Nombre
+                                        </label>
+
+                                        <input id="nombreNuevo"
+                                               name="nombre"
+                                               maxlength="100"
+                                               required
+                                               placeholder="Ej. Arroz 1 kg"
+                                               class="form-control">
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label for="precioNuevo"
+                                               class="form-label fw-semibold">
+                                            Precio unitario
+                                        </label>
+
+                                        <input id="precioNuevo"
+                                               type="number"
+                                               name="precio"
+                                               min="0.01"
+                                               step="0.01"
+                                               required
+                                               placeholder="0.00"
+                                               class="form-control">
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label for="stockNuevo"
+                                               class="form-label fw-semibold">
+                                            Stock inicial
+                                        </label>
+
+                                        <input id="stockNuevo"
+                                               type="number"
+                                               name="stock"
+                                               min="0"
+                                               step="1"
+                                               value="0"
+                                               required
+                                               class="form-control">
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label for="unidadNueva"
+                                               class="form-label fw-semibold">
+                                            Unidad
+                                        </label>
+
+                                        <select id="unidadNueva"
+                                                name="idUnidad"
+                                                required
+                                                class="form-select">
+
+                                            <option value="">
+                                                Seleccione
+                                            </option>
+
+                                            <option th:each="u : ${unidades}"
+                                                    th:value="${u.idUnidad}"
+                                                    th:text="${u.nombreUnidad}">
+                                                Unidad
+                                            </option>
+
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label for="estadoNuevo"
+                                               class="form-label fw-semibold">
+                                            Estado
+                                        </label>
+
+                                        <select id="estadoNuevo"
+                                                name="idEstadoProducto"
+                                                required
+                                                class="form-select">
+
+                                            <option th:each="e : ${estadosProducto}"
+                                                    th:value="${e.idEstadoProducto}"
+                                                    th:selected="${e.idEstadoProducto == 1}"
+                                                    th:text="${e.nombreEstado}">
+                                                Estado
+                                            </option>
+
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label for="descripcionNueva"
+                                               class="form-label fw-semibold">
+                                            Descripción
+                                        </label>
+
+                                        <textarea id="descripcionNueva"
+                                                  name="descripcion"
+                                                  maxlength="255"
+                                                  rows="3"
+                                                  placeholder="Descripción del producto"
+                                                  class="form-control"></textarea>
+                                    </div>
+
+                                    <div class="col-12 d-grid d-sm-flex justify-content-sm-end mt-3">
+
+                                        <button class="btn btn-primary px-4"
+                                                type="submit">
+                                            Agregar producto
+                                        </button>
+
+                                    </div>
+
+                                </div>
+                            </form>
+
+                        </div>
+                    </article>
+
+                    <!-- Editar producto -->
+                    <article class="card border-0 shadow-sm mb-4"
+                             th:if="${productoEditar != null}">
+
+                        <div class="card-header bg-white border-0 px-3 px-md-4 pt-4">
+
+                            <h2 class="h5 fw-bold mb-1">
+                                Editar producto
+                            </h2>
+
+                            <p class="small text-secondary mb-0">
+                                Modifica la información del producto seleccionado.
+                            </p>
+
+                        </div>
+
+                        <div class="card-body p-3 p-md-4">
+
+                            <form method="post"
+                                  th:action="@{/vendedor/inventario}">
+
+                                <input type="hidden"
+                                       name="accion"
+                                       value="actualizar">
+
+                                <input type="hidden"
+                                       name="idProducto"
+                                       th:value="${productoEditar.idProducto}">
+
+                                <input type="hidden"
+                                       name="idTienda"
+                                       th:value="${productoEditar.idTienda}">
+
+                                <div class="row g-3">
+
+                                    <div class="col-12 col-md-6">
+                                        <label for="nombreEditar"
+                                               class="form-label fw-semibold">
+                                            Nombre
+                                        </label>
+
+                                        <input id="nombreEditar"
+                                               name="nombre"
+                                               maxlength="100"
+                                               required
+                                               th:value="${productoEditar.nombre}"
+                                               class="form-control">
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label for="precioEditar"
+                                               class="form-label fw-semibold">
+                                            Precio unitario
+                                        </label>
+
+                                        <input id="precioEditar"
+                                               type="number"
+                                               name="precio"
+                                               min="0.01"
+                                               step="0.01"
+                                               required
+                                               th:value="${productoEditar.precioUnitario}"
+                                               class="form-control">
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label for="stockEditar"
+                                               class="form-label fw-semibold">
+                                            Stock
+                                        </label>
+
+                                        <input id="stockEditar"
+                                               type="number"
+                                               name="stock"
+                                               min="0"
+                                               step="1"
+                                               required
+                                               th:value="${productoEditar.stock}"
+                                               class="form-control">
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label for="unidadEditar"
+                                               class="form-label fw-semibold">
+                                            Unidad
+                                        </label>
+
+                                        <select id="unidadEditar"
+                                                name="idUnidad"
+                                                required
+                                                class="form-select">
+
+                                            <option th:each="u : ${unidades}"
+                                                    th:value="${u.idUnidad}"
+                                                    th:selected="${u.idUnidad == productoEditar.idUnidad}"
+                                                    th:text="${u.nombreUnidad}">
+                                                Unidad
+                                            </option>
+
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label for="estadoEditar"
+                                               class="form-label fw-semibold">
+                                            Estado
+                                        </label>
+
+                                        <select id="estadoEditar"
+                                                name="idEstadoProducto"
+                                                required
+                                                class="form-select">
+
+                                            <option th:each="e : ${estadosProducto}"
+                                                    th:value="${e.idEstadoProducto}"
+                                                    th:selected="${e.idEstadoProducto == productoEditar.idEstadoProducto}"
+                                                    th:text="${e.nombreEstado}">
+                                                Estado
+                                            </option>
+
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label for="descripcionEditar"
+                                               class="form-label fw-semibold">
+                                            Descripción
+                                        </label>
+
+                                        <textarea id="descripcionEditar"
+                                                  name="descripcion"
+                                                  maxlength="255"
+                                                  rows="3"
+                                                  th:text="${productoEditar.descripcion != null ? productoEditar.descripcion : ''}"
+                                                  class="form-control"></textarea>
+                                    </div>
+
+                                    <div class="col-12 d-grid d-sm-flex justify-content-sm-end gap-2 mt-3">
+
+                                        <button class="btn btn-primary px-4"
+                                                type="submit">
+                                            Guardar cambios
+                                        </button>
+
+                                        <a class="btn btn-outline-secondary"
+                                           th:href="@{/vendedor/inventario(idTienda=${idTienda})}">
+                                            Cancelar
+                                        </a>
+
+                                    </div>
+
+                                </div>
+                            </form>
+
+                        </div>
+                    </article>
+
+                    <!-- Métricas del inventario -->
+                    <div class="row g-3 mb-4">
+
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <article class="card border-0 shadow-sm h-100">
+                                <div class="card-body p-3 p-md-4">
+
+                                    <p class="text-secondary fw-semibold mb-2">
+                                        Productos activos
+                                    </p>
+
+                                    <h3 class="h2 fw-bold mb-0"
+                                        th:text="${metricasInventario != null ? metricasInventario.activos : 0}">
+                                        0
+                                    </h3>
+
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <article class="card border-0 shadow-sm h-100">
+                                <div class="card-body p-3 p-md-4">
+
+                                    <p class="text-success fw-semibold mb-2">
+                                        Disponibles
+                                    </p>
+
+                                    <h3 class="h2 fw-bold text-success mb-0"
+                                        th:text="${metricasInventario != null ? metricasInventario.disponibles : 0}">
+                                        0
+                                    </h3>
+
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <article class="card border-0 shadow-sm h-100">
+                                <div class="card-body p-3 p-md-4">
+
+                                    <p class="text-warning fw-semibold mb-2">
+                                        A punto de agotarse
+                                    </p>
+
+                                    <h3 class="h2 fw-bold text-warning mb-0"
+                                        th:text="${metricasInventario != null ? metricasInventario.bajoStock : 0}">
+                                        0
+                                    </h3>
+
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <article class="card border-0 shadow-sm h-100">
+                                <div class="card-body p-3 p-md-4">
+
+                                    <p class="text-danger fw-semibold mb-2">
+                                        Agotados
+                                    </p>
+
+                                    <h3 class="h2 fw-bold text-danger mb-0"
+                                        th:text="${metricasInventario != null ? metricasInventario.agotados : 0}">
+                                        0
+                                    </h3>
+
+                                </div>
+                            </article>
+                        </div>
+
+                    </div>
+
+                    <!-- Tabla de productos -->
+                    <article class="card border-0 shadow-sm mb-4">
+
+                        <div class="card-header bg-white border-0 px-3 px-md-4 pt-4">
+                            <h2 class="h5 fw-bold mb-1">
+                                Productos de la tienda
+                            </h2>
+
+                            <p class="small text-secondary mb-0">
+                                Consulta y administra los productos registrados.
+                            </p>
+                        </div>
+
+                        <div class="card-body p-0">
+
+                            <div class="table-responsive">
+
+                                <table class="table table-hover align-middle mb-0">
+
+                                    <thead class="table-primary">
+                                    <tr>
+                                        <th scope="col" class="px-3 py-3">
+                                            Producto
+                                        </th>
+
+                                        <th scope="col" class="py-3">
+                                            Stock
+                                        </th>
+
+                                        <th scope="col" class="py-3">
+                                            Unidad
+                                        </th>
+
+                                        <th scope="col" class="py-3">
+                                            Estado
+                                        </th>
+
+                                        <th scope="col" class="py-3 text-nowrap">
+                                            Precio
+                                        </th>
+
+                                        <th scope="col" class="py-3 text-center">
+                                            Acción
+                                        </th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+
+                                    <!-- Inventario vacío -->
+                                    <tr th:if="${#lists.isEmpty(productos)}">
+
+                                        <td colspan="6"
+                                            class="text-center text-secondary py-5">
+
+                                            <p class="fw-semibold mb-1">
+                                                No hay productos registrados en esta tienda.
+                                            </p>
+
+                                            <span class="small">
+                                                Los productos que agregues aparecerán aquí.
+                                            </span>
+
+                                        </td>
+                                    </tr>
+
+                                    <!-- Productos -->
+                                    <tr th:each="p : ${productos}">
+
+                                        <td class="px-3 py-3">
+
+                                            <strong th:text="${p.nombre}">
+                                                Producto
+                                            </strong>
+
+                                            <th:block th:if="${p.descripcion != null and !#strings.isEmpty(p.descripcion)}">
+
+                                                <div class="small text-secondary mt-1"
+                                                     th:text="${p.descripcion}">
+                                                </div>
+
+                                            </th:block>
+
+                                        </td>
+
+                                        <td class="py-3 fw-semibold"
+                                            th:text="${p.stock}">
+                                            0
+                                        </td>
+
+                                        <td class="py-3"
+                                            th:text="${p.unidad != null ? p.unidad : ''}">
+                                            Unidad
+                                        </td>
+
+                                        <td class="py-3">
+                                            <span class="badge text-bg-secondary"
+                                                  th:text="${p.estado != null ? p.estado : ''}">
+                                                Estado
+                                            </span>
+                                        </td>
+
+                                        <td class="py-3 text-nowrap fw-semibold"
+                                            th:text="${'$' + p.precioUnitario}">
+                                            $0.00
+                                        </td>
+
+                                        <td class="py-3 text-center">
+
+                                            <a class="btn btn-sm btn-outline-primary"
+                                               th:href="@{/vendedor/inventario(idTienda=${idTienda}, editarId=${p.idProducto})}">
+                                                Editar
+                                            </a>
+
+                                        </td>
+
+                                    </tr>
+
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+
+                    </article>
+
+                </th:block>
+
+            </section>
+        </main>
+
+    </div>
 </div>
+
 </body>
 </html>
