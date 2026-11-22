@@ -1,311 +1,78 @@
-
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Perfil | DebiCom</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
-
-<body class="bg-light">
-
-<div class="container-fluid p-0">
-    <div class="row g-0 min-vh-100">
-
-        <!-- Sidebar -->
-        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-
-        <!-- Contenido principal -->
-        <main class="col-12 col-lg-9 col-xl-10">
-
-            <section class="container-fluid px-3 px-md-4 px-xl-5 py-4">
-
-                <!-- Encabezado -->
-                <div class="mb-4">
-                    <h1 class="h3 fw-bold mb-2">
-                        Perfil de usuario
-                    </h1>
-
-                    <p class="text-secondary mb-0">
-                        Consulta y actualiza tu información personal.
-                    </p>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Perfil de usuario</h1>
+                    <p>Consulta y actualiza tu información personal.</p>
                 </div>
+            </div>
 
-                <!-- Mensaje de éxito -->
-                <div class="alert alert-success mb-4"
-                     role="alert"
-                     th:if="${session.mensajeVendedor != null}">
+            <article class="card" th:if="${session.mensajeVendedor != null}">
+                <p th:text="${session.mensajeVendedor}">Mensaje</p>
+            </article>
 
-                    <span th:text="${session.mensajeVendedor}">
-                        Mensaje
-                    </span>
+            <article class="card" th:if="${session.mensajeErrorVendedor != null}">
+                <p th:text="${session.mensajeErrorVendedor}">Error</p>
+            </article>
 
-                </div>
+            <article class="card" th:if="${puedeRegistrarseVendedor}">
+                <h2>¿Quieres vender en DebiCom?</h2>
+                <p>Regístrate como vendedor para administrar una tienda, productos y solicitudes de crédito.</p>
+                <form method="post" th:action="@{/comprador/registrarse-vendedor}"
+                      onsubmit="return confirm('¿Deseas registrarte como vendedor?');">
+                    <button class="button primary" type="submit">Registrarme como vendedor</button>
+                </form>
+            </article>
 
-                <!-- Mensaje de error -->
-                <div class="alert alert-danger mb-4"
-                     role="alert"
-                     th:if="${session.mensajeErrorVendedor != null}">
-
-                    <span th:text="${session.mensajeErrorVendedor}">
-                        Error
-                    </span>
-
-                </div>
-
-                <!-- Registro como vendedor -->
-                <article class="card border-0 shadow-sm mb-4"
-                         th:if="${puedeRegistrarseVendedor}">
-
-                    <div class="card-body p-3 p-md-4">
-
-                        <div class="row align-items-center g-3">
-
-                            <div class="col-12 col-lg">
-
-                                <h2 class="h5 fw-bold mb-2">
-                                    ¿Quieres vender en DebiCom?
-                                </h2>
-
-                                <p class="text-secondary mb-0">
-                                    Regístrate como vendedor para administrar
-                                    una tienda, productos y solicitudes de crédito.
-                                </p>
-
-                            </div>
-
-                            <div class="col-12 col-lg-auto">
-
-                                <form method="post"
-                                      th:action="@{/comprador/registrarse-vendedor}"
-                                      onsubmit="return confirm('¿Deseas registrarte como vendedor?');">
-
-                                    <button class="btn btn-primary w-100"
-                                            type="submit">
-                                        Registrarme como vendedor
-                                    </button>
-
-                                </form>
-
-                            </div>
-
-                        </div>
-
+            <article class="card">
+                <form class="dark-grid" method="post" th:action="@{/comprador/perfil}">
+                    <label>Nombre
+                        <input name="nombre" th:value="${perfil != null ? perfil.nombre : ''}" required>
+                    </label>
+                    <label>Apellido
+                        <input name="apellido" th:value="${perfil != null ? perfil.apellido : ''}" required>
+                    </label>
+                    <label>Identificación
+                        <input name="identificacion" th:value="${perfil != null ? perfil.identificacion : ''}" required>
+                    </label>
+                    <label>Tipo de identificación
+                        <input th:value="${perfil != null ? perfil.tipoIdentificacion : ''}" readonly>
+                    </label>
+                    <label>Fecha de nacimiento
+                        <input type="date" name="fechaNacimiento" th:value="${perfil != null and perfil.fechaNacimiento != null ? perfil.fechaNacimiento : ''}" required>
+                    </label>
+                    <label>Correo
+                        <input type="email" name="correo" th:value="${perfil != null ? perfil.correo : ''}" required>
+                    </label>
+                    <label>Teléfono
+                        <input name="telefono" th:value="${perfil != null ? perfil.telefono : ''}" required>
+                    </label>
+                    <label>Dirección
+                        <input name="direccion" th:value="${perfil != null ? perfil.direccion : ''}" required>
+                    </label>
+                    <label>
+                        <input type="checkbox" name="autorizaDatos"
+                               th:checked="${perfil != null and perfil.autorizaDatos != null and perfil.autorizaDatos == 1}">
+                        Autorizo el tratamiento de mis datos
+                    </label>
+                    <div class="form-actions">
+                        <button class="button primary" type="submit">Guardar cambios</button>
                     </div>
-                </article>
-
-                <!-- Formulario del perfil -->
-                <article class="card border-0 shadow-sm mb-4">
-
-                    <div class="card-header bg-white border-0 px-3 px-md-4 pt-4">
-
-                        <h2 class="h5 fw-bold mb-1">
-                            Información personal
-                        </h2>
-
-                        <p class="small text-secondary mb-0">
-                            Actualiza tus datos personales y de contacto.
-                        </p>
-
-                    </div>
-
-                    <div class="card-body p-3 p-md-4">
-
-                        <form method="post"
-                              th:action="@{/comprador/perfil}">
-
-                            <div class="row g-3">
-
-                                <!-- Nombre -->
-                                <div class="col-12 col-md-6">
-
-                                    <label for="nombre"
-                                           class="form-label fw-semibold">
-                                        Nombre
-                                    </label>
-
-                                    <input type="text"
-                                           id="nombre"
-                                           name="nombre"
-                                           th:value="${perfil != null ? perfil.nombre : ''}"
-                                           required
-                                           class="form-control">
-
-                                </div>
-
-                                <!-- Apellido -->
-                                <div class="col-12 col-md-6">
-
-                                    <label for="apellido"
-                                           class="form-label fw-semibold">
-                                        Apellido
-                                    </label>
-
-                                    <input type="text"
-                                           id="apellido"
-                                           name="apellido"
-                                           th:value="${perfil != null ? perfil.apellido : ''}"
-                                           required
-                                           class="form-control">
-
-                                </div>
-
-                                <!-- Identificación -->
-                                <div class="col-12 col-md-6">
-
-                                    <label for="identificacion"
-                                           class="form-label fw-semibold">
-                                        Identificación
-                                    </label>
-
-                                    <input type="text"
-                                           id="identificacion"
-                                           name="identificacion"
-                                           th:value="${perfil != null ? perfil.identificacion : ''}"
-                                           required
-                                           class="form-control">
-
-                                </div>
-
-                                <!-- Tipo de identificación -->
-                                <div class="col-12 col-md-6">
-
-                                    <label for="tipoIdentificacion"
-                                           class="form-label fw-semibold">
-                                        Tipo de identificación
-                                    </label>
-
-                                    <input type="text"
-                                           id="tipoIdentificacion"
-                                           th:value="${perfil != null ? perfil.tipoIdentificacion : ''}"
-                                           readonly
-                                           class="form-control bg-light">
-
-                                    <div class="form-text">
-                                        Este dato no se puede modificar desde el perfil.
-                                    </div>
-
-                                </div>
-
-                                <!-- Fecha de nacimiento -->
-                                <div class="col-12 col-md-6">
-
-                                    <label for="fechaNacimiento"
-                                           class="form-label fw-semibold">
-                                        Fecha de nacimiento
-                                    </label>
-
-                                    <input type="date"
-                                           id="fechaNacimiento"
-                                           name="fechaNacimiento"
-                                           th:value="${perfil != null and perfil.fechaNacimiento != null ? perfil.fechaNacimiento : ''}"
-                                           required
-                                           class="form-control">
-
-                                </div>
-
-                                <!-- Correo -->
-                                <div class="col-12 col-md-6">
-
-                                    <label for="correo"
-                                           class="form-label fw-semibold">
-                                        Correo
-                                    </label>
-
-                                    <input type="email"
-                                           id="correo"
-                                           name="correo"
-                                           th:value="${perfil != null ? perfil.correo : ''}"
-                                           required
-                                           class="form-control">
-
-                                </div>
-
-                                <!-- Teléfono -->
-                                <div class="col-12 col-md-6">
-
-                                    <label for="telefono"
-                                           class="form-label fw-semibold">
-                                        Teléfono
-                                    </label>
-
-                                    <input type="text"
-                                           id="telefono"
-                                           name="telefono"
-                                           th:value="${perfil != null ? perfil.telefono : ''}"
-                                           required
-                                           class="form-control">
-
-                                </div>
-
-                                <!-- Dirección -->
-                                <div class="col-12 col-md-6">
-
-                                    <label for="direccion"
-                                           class="form-label fw-semibold">
-                                        Dirección
-                                    </label>
-
-                                    <input type="text"
-                                           id="direccion"
-                                           name="direccion"
-                                           th:value="${perfil != null ? perfil.direccion : ''}"
-                                           required
-                                           class="form-control">
-
-                                </div>
-
-                                <!-- Autorización de tratamiento de datos -->
-                                <div class="col-12 mt-4">
-
-                                    <div class="form-check">
-
-                                        <input type="checkbox"
-                                               id="autorizaDatos"
-                                               name="autorizaDatos"
-                                               th:checked="${perfil != null and perfil.autorizaDatos != null and perfil.autorizaDatos == 1}"
-                                               class="form-check-input">
-
-                                        <label for="autorizaDatos"
-                                               class="form-check-label fw-medium">
-                                            Autorizo el tratamiento de mis datos
-                                        </label>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                            <!-- Botón guardar -->
-                            <div class="border-top mt-4 pt-3">
-
-                                <div class="d-grid d-sm-flex justify-content-sm-end">
-
-                                    <button class="btn btn-primary px-4"
-                                            type="submit">
-                                        Guardar cambios
-                                    </button>
-
-                                </div>
-
-                            </div>
-
-                        </form>
-
-                    </div>
-                </article>
-
-            </section>
-        </main>
-
-    </div>
+                </form>
+            </article>
+        </section>
+    </main>
 </div>
-
 </body>
 </html>

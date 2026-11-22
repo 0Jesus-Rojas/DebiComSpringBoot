@@ -2,174 +2,66 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Deudas pendientes | DebiCom</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
-
-<body class="bg-light">
-
-<div class="container-fluid p-0">
-    <div class="row g-0 min-vh-100">
-
-        <!-- Sidebar -->
-        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-
-        <!-- Contenido principal -->
-        <main class="col-12 col-lg-9 col-xl-10">
-
-            <section class="container-fluid px-3 px-md-4 px-xl-5 py-4">
-
-                <!-- Encabezado -->
-                <div class="mb-4">
-                    <h1 class="h3 fw-bold mb-2">Deudas pendientes</h1>
-                    <p class="text-secondary mb-0">
-                        Consulta a quién debes, cuánto y la fecha de vencimiento.
-                    </p>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Deudas pendientes</h1>
+                    <p>Consulta a quién debes, cuánto y la fecha de vencimiento.</p>
                 </div>
-
-                <!-- Indicadores -->
-                <div class="row g-3 mb-4">
-
-                    <article class="col-12 col-sm-6 col-xl-4">
-                        <div class="card h-100 border-0 border-start border-4 border-primary shadow-sm">
-                            <div class="card-body">
-                                <span class="d-block small fw-semibold text-secondary mb-2">
-                                    Deuda total
-                                </span>
-
-                                <strong class="fs-3 text-primary"
-                                        th:text="${'$' + (deudaTotal != null ? deudaTotal : '0.00')}">
-                                    $0.00
-                                </strong>
-                            </div>
-                        </div>
-                    </article>
-
-                    <article class="col-12 col-sm-6 col-xl-4">
-                        <div class="card h-100 border-0 border-start border-4 border-success shadow-sm">
-                            <div class="card-body">
-                                <span class="d-block small fw-semibold text-secondary mb-2">
-                                    Al día
-                                </span>
-
-                                <strong class="fs-3 text-success"
-                                        th:text="${pagosAlDia != null ? pagosAlDia : 0}">
-                                    0
-                                </strong>
-                            </div>
-                        </div>
-                    </article>
-
-                    <article class="col-12 col-sm-6 col-xl-4">
-                        <div class="card h-100 border-0 border-start border-4 border-danger shadow-sm">
-                            <div class="card-body">
-                                <span class="d-block small fw-semibold text-secondary mb-2">
-                                    Vencidas
-                                </span>
-
-                                <strong class="fs-3 text-danger"
-                                        th:text="${pagosVencidos != null ? pagosVencidos : 0}">
-                                    0
-                                </strong>
-                            </div>
-                        </div>
-                    </article>
-
-                </div>
-
-                <!-- Tabla de deudas -->
-                <article class="card border-0 shadow-sm">
-
-                    <div class="card-header bg-white border-0 px-3 px-md-4 pt-4 pb-3">
-                        <h2 class="h5 fw-bold mb-1">Detalle de tus deudas</h2>
-                        <p class="text-secondary small mb-0">
-                            Consulta los montos y estados de tus obligaciones pendientes.
-                        </p>
-                    </div>
-
-                    <div class="card-body p-0">
-
-                        <div class="table-responsive">
-
-                            <table class="table table-hover align-middle mb-0">
-
-                                <thead class="table-primary">
-                                <tr>
-                                    <th scope="col" class="px-3 py-3">Tipo</th>
-                                    <th scope="col" class="py-3">Tienda</th>
-                                    <th scope="col" class="py-3 text-nowrap">Monto original</th>
-                                    <th scope="col" class="py-3">Saldo</th>
-                                    <th scope="col" class="py-3 text-nowrap">Fecha de vencimiento</th>
-                                    <th scope="col" class="py-3">Estado</th>
-                                </tr>
-                                </thead>
-
-                                <tbody>
-
-                                <!-- Sin deudas -->
-                                <tr th:if="${#lists.isEmpty(deudas)}">
-                                    <td colspan="6" class="text-center py-5">
-                                        <p class="fw-semibold text-secondary mb-1">
-                                            No tienes deudas pendientes.
-                                        </p>
-                                        <span class="small text-secondary">
-                                            Cuando tengas una deuda, aparecerá en esta tabla.
-                                        </span>
-                                    </td>
-                                </tr>
-
-                                <!-- Deudas existentes -->
-                                <tr th:each="d : ${deudas}">
-
-                                    <td class="px-3 py-3 fw-semibold text-nowrap"
-                                        th:text="${(d.tipoPrestamo != null ? d.tipoPrestamo : 'Deuda') + ' #' + d.idSolicitud}">
-                                        Deuda #0
-                                    </td>
-
-                                    <td class="py-3"
-                                        th:text="${d.tienda}">
-                                        Tienda
-                                    </td>
-
-                                    <td class="py-3 text-nowrap"
-                                        th:text="${'$' + d.montoOriginal}">
-                                        $0.00
-                                    </td>
-
-                                    <td class="py-3 fw-semibold text-nowrap"
-                                        th:text="${'$' + d.saldoPendiente}">
-                                        $0.00
-                                    </td>
-
-                                    <td class="py-3 text-nowrap"
-                                        th:text="${d.fechaVencimiento}">
-                                        Fecha
-                                    </td>
-
-                                    <td class="py-3">
-                                        <span class="badge text-bg-secondary"
-                                              th:text="${d.estado}">
-                                            Estado
-                                        </span>
-                                    </td>
-
-                                </tr>
-
-                                </tbody>
-                            </table>
-
-                        </div>
-                    </div>
+            </div>
+            <div class="metric-row">
+                <article class="metric">
+                    <span class="label">Deuda total</span>
+                    <strong th:text="'$' + ${deudaTotal != null ? deudaTotal : '0.00'}">$0.00</strong>
                 </article>
-
-            </section>
-        </main>
-
-    </div>
+                <article class="metric success">
+                    <span class="label">Al día</span>
+                    <strong th:text="${pagosAlDia != null ? pagosAlDia : 0}">0</strong>
+                </article>
+                <article class="metric danger">
+                    <span class="label">Vencidas</span>
+                    <strong th:text="${pagosVencidos != null ? pagosVencidos : 0}">0</strong>
+                </article>
+            </div>
+            <article class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Tienda</th>
+                            <th>Monto original</th>
+                            <th>Saldo</th>
+                            <th>Fecha de vencimiento</th>
+                            <th>Estado</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(deudas)}">
+                            <td colspan="6">No tienes deudas pendientes.</td>
+                        </tr>
+                        <tr th:each="d : ${deudas}">
+                            <td th:text="${(d.tipoPrestamo != null ? d.tipoPrestamo : 'Deuda') + ' #' + d.idSolicitud}">Deuda #0</td>
+                            <td th:text="${d.tienda}">Tienda</td>
+                            <td th:text="'$' + ${d.montoOriginal}">$0.00</td>
+                            <td th:text="'$' + ${d.saldoPendiente}">$0.00</td>
+                            <td th:text="${d.fechaVencimiento}">Fecha</td>
+                            <td th:text="${d.estado}">Estado</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+    </main>
 </div>
-
 </body>
 </html>

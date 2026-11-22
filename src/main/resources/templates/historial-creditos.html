@@ -1,252 +1,92 @@
-
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Historial de créditos | DebiCom</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Historial de créditos</h1>
+                    <p>Consulta todos los créditos otorgados históricamente por tus tiendas.</p>
+                </div>
+                <a class="button secondary" th:href="@{/vendedor/creditos}">
+                    Solicitudes pendientes
+                </a>
+            </div>
 
-<body class="bg-light">
-
-<div class="container-fluid p-0">
-    <div class="row g-0 min-vh-100">
-
-        <!-- Sidebar -->
-        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-
-        <!-- Contenido principal -->
-        <main class="col-12 col-lg-9 col-xl-10">
-
-            <section class="container-fluid px-3 px-md-4 px-xl-5 py-4">
-
-                <!-- Encabezado -->
-                <div class="d-flex flex-column flex-md-row
-                            justify-content-between align-items-start
-                            align-items-md-center gap-3 mb-4">
-
-                    <div>
-                        <h1 class="h3 fw-bold mb-2">
-                            Historial de créditos
-                        </h1>
-
-                        <p class="text-secondary mb-0">
-                            Consulta todos los créditos otorgados históricamente
-                            por tus tiendas.
-                        </p>
-                    </div>
-
-                    <a class="btn btn-outline-primary text-nowrap"
-                       th:href="@{/vendedor/creditos}">
-                        Solicitudes pendientes
-                    </a>
+            <article class="card">
+                <div class="filter-toolbar">
+                    <input
+                            type="search"
+                            class="filter-input"
+                            data-table-filter="#tablaHistorialCreditos"
+                            placeholder="Buscar por número de crédito..."
+                            aria-label="Buscar crédito por número">
                 </div>
 
-                <!-- Historial -->
-                <article class="card border-0 shadow-sm">
+                <div class="history-summary">
+                    <span>Créditos otorgados</span>
+                    <strong th:text="${historialCreditos != null ? #lists.size(historialCreditos) : 0}">0</strong>
+                </div>
 
-                    <!-- Cabecera y contador -->
-                    <div class="card-header bg-white border-0
-                                px-3 px-md-4 pt-4 pb-3">
-
-                        <div class="d-flex flex-column flex-sm-row
-                                    justify-content-between align-items-start
-                                    align-items-sm-center gap-3">
-
-                            <div>
-                                <h2 class="h5 fw-bold mb-1">
-                                    Créditos otorgados
-                                </h2>
-
-                                <p class="small text-secondary mb-0">
-                                    Historial de créditos y fiados registrados.
-                                </p>
-                            </div>
-
-                            <div class="rounded-3 bg-primary bg-opacity-10
-                                        px-3 py-2 text-center">
-
-                                <span class="d-block small text-secondary">
-                                    Total de registros
-                                </span>
-
-                                <strong class="fs-4 text-primary"
-                                        th:text="${historialCreditos != null
-                                            ? #lists.size(historialCreditos) : 0}">
-                                    0
-                                </strong>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Buscador -->
-                    <div class="card-body px-3 px-md-4 pt-2 pb-3">
-
-                        <label for="buscarCredito"
-                               class="form-label fw-semibold">
-                            Buscar crédito
-                        </label>
-
-                        <div class="input-group">
-                            <span class="input-group-text bg-white">
-                                <span aria-hidden="true">⌕</span>
-                            </span>
-
-                            <input type="search"
-                                   id="buscarCredito"
-                                   class="form-control"
-                                   data-table-filter="#tablaHistorialCreditos"
-                                   placeholder="Buscar por número de crédito..."
-                                   aria-label="Buscar crédito por número">
-                        </div>
-
-                        <small class="text-secondary d-block mt-2">
-                            Ingresa el número del crédito para filtrar los resultados.
-                        </small>
-                    </div>
-
-                    <!-- Tabla -->
-                    <div class="card-body p-0">
-
-                        <div class="table-responsive">
-
-                            <table id="tablaHistorialCreditos"
-                                   class="table table-hover align-middle mb-0">
-
-                                <thead class="table-primary">
-                                <tr>
-                                    <th scope="col" class="px-3 py-3">Crédito</th>
-                                    <th scope="col" class="py-3">Cliente</th>
-                                    <th scope="col" class="py-3 text-nowrap">Tipo de préstamo</th>
-                                    <th scope="col" class="py-3">Tienda</th>
-                                    <th scope="col" class="py-3 text-nowrap">Cupo aprobado</th>
-                                    <th scope="col" class="py-3 text-nowrap">Saldo pendiente</th>
-                                    <th scope="col" class="py-3 text-nowrap">Fecha otorgamiento</th>
-                                    <th scope="col" class="py-3 text-nowrap">Vencimiento</th>
-                                    <th scope="col" class="py-3">Estado</th>
-                                    <th scope="col" class="py-3 text-center">Detalle</th>
-                                </tr>
-                                </thead>
-
-                                <tbody>
-
-                                <!-- Sin registros -->
-                                <tr data-filter-empty
-                                    th:if="${#lists.isEmpty(historialCreditos)}">
-
-                                    <td colspan="10"
-                                        class="text-center text-secondary py-5">
-                                        No hay créditos o fiados otorgados para mostrar.
-                                    </td>
-                                </tr>
-
-                                <!-- Registros -->
-                                <tr th:each="c : ${historialCreditos}"
-                                    th:attr="data-filter-value=${c.idSolicitud}">
-
-                                    <td class="px-3 py-3 fw-semibold text-nowrap"
-                                        th:text="${'#' + c.idSolicitud}">
-                                        #0
-                                    </td>
-
-                                    <td class="py-3"
-                                        th:text="${c.cliente}">
-                                        Cliente
-                                    </td>
-
-                                    <td class="py-3">
-                                        <span class="badge rounded-pill"
-                                              th:classappend="${c.tipoPrestamo != null
-                                                  and #strings.equalsIgnoreCase(c.tipoPrestamo, 'CREDITO')
-                                                  ? 'text-bg-primary'
-                                                  : 'text-bg-secondary'}"
-                                              th:text="${c.tipoPrestamo != null
-                                                  ? c.tipoPrestamo : '—'}">
-                                            TIPO
-                                        </span>
-                                    </td>
-
-                                    <td class="py-3"
-                                        th:text="${c.tienda}">
-                                        Tienda
-                                    </td>
-
-                                    <td class="py-3 text-nowrap"
-                                        th:text="${'$' + c.cupoAprobado}">
-                                        $0.00
-                                    </td>
-
-                                    <td class="py-3 fw-semibold text-nowrap"
-                                        th:text="${'$' + c.saldoPendiente}">
-                                        $0.00
-                                    </td>
-
-                                    <td class="py-3 text-nowrap"
-                                        th:text="${c.fechaAprobacion != null
-                                            ? c.fechaAprobacion : c.fechaSolicitud}">
-                                        Fecha
-                                    </td>
-
-                                    <td class="py-3 text-nowrap"
-                                        th:text="${c.fechaVencimiento != null
-                                            ? c.fechaVencimiento : '—'}">
-                                        Vencimiento
-                                    </td>
-
-                                    <td class="py-3">
-                                        <span class="badge rounded-pill"
-                                              th:classappend="${c.estado != null
-                                                  and #strings.equalsIgnoreCase(c.estado, 'APROBADO')
-                                                  ? 'text-bg-success'
-                                                  : (c.estado != null
-                                                      and #strings.equalsIgnoreCase(c.estado, 'PENDIENTE')
-                                                      ? 'text-bg-warning'
-                                                      : (c.estado != null
-                                                          and #strings.equalsIgnoreCase(c.estado, 'RECHAZADO')
-                                                          ? 'text-bg-danger'
-                                                          : 'text-bg-secondary'))}"
-                                              th:text="${c.estado != null
-                                                  ? c.estado : '—'}">
-                                            ESTADO
-                                        </span>
-                                    </td>
-
-                                    <td class="py-3 text-center">
-                                        <a class="btn btn-sm btn-outline-primary"
-                                           th:href="@{/vendedor/creditos/detalle(id=${c.idSolicitud})}">
-                                            Ver
-                                        </a>
-                                    </td>
-
-                                </tr>
-
-                                </tbody>
-                            </table>
-
-                        </div>
-                    </div>
-
-                    <!-- Pie -->
-                    <div class="card-footer bg-white border-0
-                                px-3 px-md-4 py-3">
-
-                        <span class="small text-secondary">
-                            El historial muestra los créditos y fiados otorgados
-                            por tus tiendas.
-                        </span>
-
-                    </div>
-
-                </article>
-
-            </section>
-        </main>
-
-    </div>
+                <div class="table-wrap">
+                    <table id="tablaHistorialCreditos">
+                        <thead>
+                        <tr>
+                            <th>Crédito</th>
+                            <th>Cliente</th>
+                            <th>Tipo de préstamo</th>
+                            <th>Tienda</th>
+                            <th>Cupo aprobado</th>
+                            <th>Saldo pendiente</th>
+                            <th>Fecha otorgamiento</th>
+                            <th>Vencimiento</th>
+                            <th>Estado</th>
+                            <th>Detalle</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr data-filter-empty th:if="${#lists.isEmpty(historialCreditos)}">
+                            <td colspan="10">No hay créditos o fiados otorgados para mostrar.</td>
+                        </tr>
+                        <tr th:each="c : ${historialCreditos}" th:attr="data-filter-value=${c.idSolicitud}">
+                            <td th:text="'#' + ${c.idSolicitud}">#0</td>
+                            <td th:text="${c.cliente}">Cliente</td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${c.tipoPrestamo != null ? ' ' + #strings.toLowerCase(c.tipoPrestamo) : ''}"
+                                      th:text="${c.tipoPrestamo != null ? c.tipoPrestamo : '—'}">TIPO</span>
+                            </td>
+                            <td th:text="${c.tienda}">Tienda</td>
+                            <td th:text="'$' + ${c.cupoAprobado}">$0.00</td>
+                            <td><strong th:text="'$' + ${c.saldoPendiente}">$0.00</strong></td>
+                            <td th:text="${c.fechaAprobacion != null ? c.fechaAprobacion : c.fechaSolicitud}">Fecha</td>
+                            <td th:text="${c.fechaVencimiento != null ? c.fechaVencimiento : ''}">Vencimiento</td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${c.estado != null ? ' ' + #strings.toLowerCase(c.estado) : ''}"
+                                      th:text="${c.estado}">ESTADO</span>
+                            </td>
+                            <td>
+                                <a class="button secondary tiny"
+                                   th:href="@{/vendedor/creditos/detalle(id=${c.idSolicitud})}">
+                                    Ver
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+    </main>
 </div>
-
 </body>
 </html>

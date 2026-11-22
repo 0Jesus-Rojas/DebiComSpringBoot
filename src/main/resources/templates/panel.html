@@ -1,415 +1,120 @@
-
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Dashboard | DebiCom</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
-
-<body class="bg-light">
-
-<div class="container-fluid p-0">
-    <div class="row g-0 min-vh-100">
-
-        <!-- Sidebar -->
-        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-
-        <!-- Contenido principal -->
-        <main class="col-12 col-lg-9 col-xl-10">
-
-            <section class="container-fluid px-3 px-md-4 px-xl-5 py-4">
-
-                <!-- Encabezado -->
-                <div class="d-flex flex-column flex-xl-row
-                            justify-content-between align-items-start
-                            gap-3 mb-4">
-
-                    <div>
-                        <h1 class="h3 fw-bold mb-2">
-                            Panel de control
-                        </h1>
-
-                        <p class="text-secondary mb-0"
-                           th:text="${'Resumen de la gestión de créditos de ' + session.nombre + '.'}">
-                            Resumen de la gestión de créditos.
-                        </p>
-                    </div>
-
-                    <!-- Acciones principales -->
-                    <div class="d-grid d-sm-flex flex-wrap gap-2">
-
-                        <a class="btn btn-outline-primary"
-                           th:href="@{/vendedor/creditos/otorgar}">
-                            Asignar crédito
-                        </a>
-
-                        <a class="btn btn-primary"
-                           th:href="@{/vendedor/fiados/asignar}">
-                            Asignar fiado
-                        </a>
-
-                        <a class="btn btn-outline-secondary"
-                           th:href="@{/vendedor/creditos(estado='PENDIENTE')}">
-                            Revisar solicitudes
-                        </a>
-
-                    </div>
+<body class="app-body">
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <main class="app-main">
+        <section class="page-content">
+            <div class="page-heading">
+                <div>
+                    <h1>Panel de control</h1>
+                    <p th:text="'Resumen de la gestión de créditos de ' + ${session.nombre} + '.'">Resumen de la gestión de créditos.</p>
                 </div>
-
-                <!-- Indicadores principales -->
-                <div class="mb-4">
-
-                    <h2 class="h5 fw-bold mb-3">
-                        Resumen general
-                    </h2>
-
-                    <div class="row g-3">
-
-                        <!-- Total de clientes -->
-                        <div class="col-12 col-sm-6 col-xl-3">
-                            <article class="card border-0 shadow-sm h-100">
-                                <div class="card-body p-3 p-md-4">
-
-                                    <p class="text-secondary fw-semibold mb-2">
-                                        Total de clientes
-                                    </p>
-
-                                    <h3 class="h2 fw-bold text-primary mb-0"
-                                        th:text="${dashboard != null ? dashboard.totalClientes : 0}">
-                                        0
-                                    </h3>
-
-                                </div>
-                            </article>
-                        </div>
-
-                        <!-- Solicitudes nuevas -->
-                        <div class="col-12 col-sm-6 col-xl-3">
-                            <article class="card border-0 shadow-sm h-100">
-                                <div class="card-body p-3 p-md-4">
-
-                                    <p class="text-secondary fw-semibold mb-2">
-                                        Solicitudes nuevas
-                                    </p>
-
-                                    <h3 class="h2 fw-bold text-warning mb-0"
-                                        th:text="${dashboard != null ? dashboard.solicitudesNuevas : 0}">
-                                        0
-                                    </h3>
-
-                                </div>
-                            </article>
-                        </div>
-
-                        <!-- Pendientes -->
-                        <div class="col-12 col-sm-6 col-xl-3">
-                            <article class="card border-0 shadow-sm h-100">
-                                <div class="card-body p-3 p-md-4">
-
-                                    <p class="text-secondary fw-semibold mb-2">
-                                        Pendientes
-                                    </p>
-
-                                    <h3 class="h2 fw-bold mb-0"
-                                        th:text="${dashboard != null ? dashboard.solicitudesPendientes : 0}">
-                                        0
-                                    </h3>
-
-                                </div>
-                            </article>
-                        </div>
-
-                        <!-- Aprobadas -->
-                        <div class="col-12 col-sm-6 col-xl-3">
-                            <article class="card border-0 shadow-sm h-100">
-                                <div class="card-body p-3 p-md-4">
-
-                                    <p class="text-secondary fw-semibold mb-2">
-                                        Aprobadas
-                                    </p>
-
-                                    <h3 class="h2 fw-bold text-success mb-0"
-                                        th:text="${dashboard != null ? dashboard.solicitudesAprobadas : 0}">
-                                        0
-                                    </h3>
-
-                                </div>
-                            </article>
-                        </div>
-
-                    </div>
+                <div class="form-actions">
+                    <a class="button secondary" th:href="@{/vendedor/creditos/otorgar}">Asignar crédito</a>
+                    <a class="button primary" th:href="@{/vendedor/fiados/asignar}">Asignar fiado</a>
+                    <a class="button secondary" th:href="@{/vendedor/creditos(estado='PENDIENTE')}">Revisar solicitudes</a>
                 </div>
+            </div>
 
-                <!-- Indicadores financieros -->
-                <div class="mb-4">
-
-                    <h2 class="h5 fw-bold mb-3">
-                        Resumen financiero
-                    </h2>
-
-                    <div class="row g-3">
-
-                        <!-- Pagos recibidos -->
-                        <div class="col-12 col-md-6">
-                            <article class="card border-0 shadow-sm h-100">
-                                <div class="card-body p-3 p-md-4">
-
-                                    <p class="text-secondary fw-semibold mb-2">
-                                        Pagos recibidos
-                                    </p>
-
-                                    <h3 class="h2 fw-bold text-success mb-0"
-                                        th:text="${'$' + (dashboard != null and dashboard.pagosRecibidos != null ? #numbers.formatDecimal(dashboard.pagosRecibidos, 1, 2) : '0.00')}">
-                                        $0.00
-                                    </h3>
-
-                                </div>
-                            </article>
-                        </div>
-
-                        <!-- Saldo por cobrar -->
-                        <div class="col-12 col-md-6">
-                            <article class="card border-0 shadow-sm h-100">
-                                <div class="card-body p-3 p-md-4">
-
-                                    <p class="text-secondary fw-semibold mb-2">
-                                        Saldo por cobrar
-                                    </p>
-
-                                    <h3 class="h2 fw-bold text-danger mb-0"
-                                        th:text="${'$' + (dashboard != null and dashboard.deudaPendiente != null ? #numbers.formatDecimal(dashboard.deudaPendiente, 1, 2) : '0.00')}">
-                                        $0.00
-                                    </h3>
-
-                                </div>
-                            </article>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- Solicitudes nuevas -->
-                <article class="card border-0 shadow-sm mb-4">
-
-                    <div class="card-header bg-white border-0 px-3 px-md-4 pt-4">
-
-                        <h2 class="h5 fw-bold mb-1">
-                            Acciones rápidas
-                        </h2>
-
-                        <p class="small text-secondary mb-0">
-                            Revisa las solicitudes recientes y gestiona su aprobación.
-                        </p>
-
-                    </div>
-
-                    <div class="card-body p-0">
-
-                        <div class="table-responsive">
-
-                            <table class="table table-hover align-middle mb-0">
-
-                                <thead class="table-primary">
-                                <tr>
-                                    <th scope="col" class="px-3 py-3">
-                                        Cliente
-                                    </th>
-
-                                    <th scope="col" class="py-3">
-                                        Tienda
-                                    </th>
-
-                                    <th scope="col" class="py-3 text-nowrap">
-                                        Monto
-                                    </th>
-
-                                    <th scope="col" class="py-3">
-                                        Acción
-                                    </th>
-                                </tr>
-                                </thead>
-
-                                <tbody>
-
-                                <!-- No hay solicitudes -->
-                                <tr th:if="${#lists.isEmpty(solicitudesNuevas)}">
-
-                                    <td colspan="4"
-                                        class="text-center text-secondary py-5">
-
-                                        <p class="fw-semibold mb-1">
-                                            No hay solicitudes pendientes.
-                                        </p>
-
-                                        <span class="small">
-                                            Las nuevas solicitudes aparecerán aquí.
-                                        </span>
-
-                                    </td>
-                                </tr>
-
-                                <!-- Máximo cinco solicitudes -->
-                                <tr th:each="s, stat : ${solicitudesNuevas}"
-                                    th:if="${stat.index < 5}">
-
-                                    <td class="px-3 py-3 fw-semibold"
-                                        th:text="${s.cliente}">
-                                        Cliente
-                                    </td>
-
-                                    <td class="py-3"
-                                        th:text="${s.tienda}">
-                                        Tienda
-                                    </td>
-
-                                    <td class="py-3 text-nowrap fw-semibold"
-                                        th:text="${'$' + s.montoTotal}">
-                                        $0.00
-                                    </td>
-
-                                    <td class="py-3">
-
-                                        <div class="d-flex flex-wrap gap-2">
-
-                                            <!-- Aprobar solicitud -->
-                                            <form method="post"
-                                                  th:action="@{/vendedor/creditos/estado}">
-
-                                                <input type="hidden"
-                                                       name="idSolicitud"
-                                                       th:value="${s.idSolicitud}">
-
-                                                <input type="hidden"
-                                                       name="estado"
-                                                       value="APROBADO">
-
-                                                <button class="btn btn-sm btn-success"
-                                                        type="submit">
-                                                    Aprobar
-                                                </button>
-
-                                            </form>
-
-                                            <!-- Ver detalles -->
-                                            <a class="btn btn-sm btn-outline-primary"
-                                               th:href="@{/vendedor/creditos/detalle(id=${s.idSolicitud})}">
-                                                Detalles
-                                            </a>
-
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-
-                                </tbody>
-                            </table>
-
-                        </div>
-                    </div>
-
+            <div class="metric-row">
+                <article class="metric">
+                    <span class="label">Total de clientes</span>
+                    <strong th:text="${dashboard != null ? dashboard.totalClientes : 0}">0</strong>
                 </article>
-
-                <!-- Tiendas asignadas -->
-                <article class="card border-0 shadow-sm mb-4">
-
-                    <div class="card-header bg-white border-0 px-3 px-md-4 pt-4">
-
-                        <h2 class="h5 fw-bold mb-1">
-                            Tiendas asignadas
-                        </h2>
-
-                        <p class="small text-secondary mb-0">
-                            Administra tus tiendas y consulta sus inventarios.
-                        </p>
-
-                    </div>
-
-                    <div class="card-body p-0">
-
-                        <div class="table-responsive">
-
-                            <table class="table table-hover align-middle mb-0">
-
-                                <thead class="table-primary">
-                                <tr>
-                                    <th scope="col" class="px-3 py-3">
-                                        Tienda
-                                    </th>
-
-                                    <th scope="col" class="py-3">
-                                        NIT
-                                    </th>
-
-                                    <th scope="col" class="py-3">
-                                        Dirección
-                                    </th>
-
-                                    <th scope="col" class="py-3">
-                                        Acciones
-                                    </th>
-                                </tr>
-                                </thead>
-
-                                <tbody>
-
-                                <tr th:each="t : ${tiendas}">
-
-                                    <td class="px-3 py-3 fw-semibold"
-                                        th:text="${t.nombreTienda}">
-                                        Tienda
-                                    </td>
-
-                                    <td class="py-3 text-nowrap"
-                                        th:text="${t.nit}">
-                                        NIT
-                                    </td>
-
-                                    <td class="py-3"
-                                        th:text="${t.direccion}">
-                                        Dirección
-                                    </td>
-
-                                    <td class="py-3">
-
-                                        <div class="d-flex flex-wrap gap-2">
-
-                                            <a class="btn btn-sm btn-outline-primary"
-                                               th:href="@{/vendedor/tienda(idTienda=${t.idTienda})}">
-                                                Gestionar
-                                            </a>
-
-                                            <a class="btn btn-sm btn-outline-secondary"
-                                               th:href="@{/vendedor/inventario(idTienda=${t.idTienda})}">
-                                                Inventario
-                                            </a>
-
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-
-                                </tbody>
-
-                            </table>
-
-                        </div>
-                    </div>
-
+                <article class="metric warning">
+                    <span class="label">Solicitudes nuevas</span>
+                    <strong th:text="${dashboard != null ? dashboard.solicitudesNuevas : 0}">0</strong>
                 </article>
+                <article class="metric">
+                    <span class="label">Pendientes</span>
+                    <strong th:text="${dashboard != null ? dashboard.solicitudesPendientes : 0}">0</strong>
+                </article>
+                <article class="metric success">
+                    <span class="label">Aprobadas</span>
+                    <strong th:text="${dashboard != null ? dashboard.solicitudesAprobadas : 0}">0</strong>
+                </article>
+            </div>
 
-            </section>
-        </main>
+            <div class="metric-row">
+                <article class="metric">
+                    <span class="label">Pagos recibidos</span>
+                    <strong th:text="'$' + ${dashboard != null and dashboard.pagosRecibidos != null ? #numbers.formatDecimal(dashboard.pagosRecibidos, 1, 2) : '0.00'}">$0.00</strong>
+                </article>
+                <article class="metric danger">
+                    <span class="label">Saldo por cobrar</span>
+                    <strong th:text="'$' + ${dashboard != null and dashboard.deudaPendiente != null ? #numbers.formatDecimal(dashboard.deudaPendiente, 1, 2) : '0.00'}">$0.00</strong>
+                </article>
+            </div>
 
-    </div>
+            <article class="card">
+                <h2>Acciones rápidas</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Tienda</th>
+                            <th>Monto</th>
+                            <th>Acción</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(solicitudesNuevas)}">
+                            <td colspan="4">No hay solicitudes pendientes.</td>
+                        </tr>
+                        <tr th:each="s, stat : ${solicitudesNuevas}" th:if="${stat.index < 5}">
+                            <td th:text="${s.cliente}">Cliente</td>
+                            <td th:text="${s.tienda}">Tienda</td>
+                            <td th:text="'$' + ${s.montoTotal}">$0.00</td>
+                            <td>
+                                <form method="post" th:action="@{/vendedor/creditos/estado}" style="display:inline">
+                                    <input type="hidden" name="idSolicitud" th:value="${s.idSolicitud}">
+                                    <input type="hidden" name="estado" value="APROBADO">
+                                    <button class="button primary tiny" type="submit">Aprobar</button>
+                                </form>
+                                <a class="button secondary tiny" th:href="@{/vendedor/creditos/detalle(id=${s.idSolicitud})}">Detalles</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="card">
+                <h2>Tiendas asignadas</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Tienda</th>
+                            <th>NIT</th>
+                            <th>Dirección</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="t : ${tiendas}">
+                            <td th:text="${t.nombreTienda}">Tienda</td>
+                            <td th:text="${t.nit}">NIT</td>
+                            <td th:text="${t.direccion}">Dirección</td>
+                            <td>
+                                <a class="button secondary tiny" th:href="@{/vendedor/tienda(idTienda=${t.idTienda})}">Gestionar</a>
+                                <a class="button secondary tiny" th:href="@{/vendedor/inventario(idTienda=${t.idTienda})}">Inventario</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+    </main>
 </div>
-
 </body>
 </html>
