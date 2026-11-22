@@ -4,36 +4,39 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Deudas pendientes | DebiCom</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body class="app-body">
 <div class="app-shell">
     <div th:replace="~{fragments/sidebar :: sidebar}"></div>
     <main class="app-main">
-        <section class="page-content">
-            <div class="page-heading">
+        <section class="page-content container-fluid px-3 px-md-4 px-xl-5 py-3 py-lg-4">
+            <div class="page-heading d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
                 <div>
                     <h1>Deudas pendientes</h1>
                     <p>Consulta a quién debes, cuánto y la fecha de vencimiento.</p>
                 </div>
             </div>
-            <div class="metric-row">
-                <article class="metric">
+            <div class="row g-3 mb-3">
+                <article class="metric col-12 col-sm-6 col-xl-4">
                     <span class="label">Deuda total</span>
                     <strong th:text="'$' + ${deudaTotal != null ? deudaTotal : '0.00'}">$0.00</strong>
                 </article>
-                <article class="metric success">
+                <article class="metric success col-12 col-sm-6 col-xl-4">
                     <span class="label">Al día</span>
                     <strong th:text="${pagosAlDia != null ? pagosAlDia : 0}">0</strong>
                 </article>
-                <article class="metric danger">
+                <article class="metric danger col-12 col-sm-6 col-xl-4">
                     <span class="label">Vencidas</span>
                     <strong th:text="${pagosVencidos != null ? pagosVencidos : 0}">0</strong>
                 </article>
             </div>
-            <article class="card">
-                <div class="table-wrap">
-                    <table>
+            <article class="card mb-4">
+                <div class="table-wrap table-responsive">
+                    <table class="align-middle">
                         <thead>
                         <tr>
                             <th>Tipo</th>

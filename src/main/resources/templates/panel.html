@@ -4,59 +4,62 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Dashboard | DebiCom</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body class="app-body">
 <div class="app-shell">
     <div th:replace="~{fragments/sidebar :: sidebar}"></div>
     <main class="app-main">
-        <section class="page-content">
-            <div class="page-heading">
+        <section class="page-content container-fluid px-3 px-md-4 px-xl-5 py-3 py-lg-4">
+            <div class="page-heading d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
                 <div>
                     <h1>Panel de control</h1>
                     <p th:text="'Resumen de la gestión de créditos de ' + ${session.nombre} + '.'">Resumen de la gestión de créditos.</p>
                 </div>
-                <div class="form-actions">
-                    <a class="button secondary" th:href="@{/vendedor/creditos/otorgar}">Asignar crédito</a>
-                    <a class="button primary" th:href="@{/vendedor/fiados/asignar}">Asignar fiado</a>
-                    <a class="button secondary" th:href="@{/vendedor/creditos(estado='PENDIENTE')}">Revisar solicitudes</a>
+                <div class="form-actions d-grid d-sm-flex flex-wrap gap-2 justify-content-sm-end mt-3">
+                    <a class="button secondary text-center" th:href="@{/vendedor/creditos/otorgar}">Asignar crédito</a>
+                    <a class="button primary text-center" th:href="@{/vendedor/fiados/asignar}">Asignar fiado</a>
+                    <a class="button secondary text-center" th:href="@{/vendedor/creditos(estado='PENDIENTE')}">Revisar solicitudes</a>
                 </div>
             </div>
 
-            <div class="metric-row">
-                <article class="metric">
+            <div class="row g-3 mb-3">
+                <article class="metric col-12 col-sm-6 col-xl-3">
                     <span class="label">Total de clientes</span>
                     <strong th:text="${dashboard != null ? dashboard.totalClientes : 0}">0</strong>
                 </article>
-                <article class="metric warning">
+                <article class="metric warning col-12 col-sm-6 col-xl-3">
                     <span class="label">Solicitudes nuevas</span>
                     <strong th:text="${dashboard != null ? dashboard.solicitudesNuevas : 0}">0</strong>
                 </article>
-                <article class="metric">
+                <article class="metric col-12 col-sm-6 col-xl-3">
                     <span class="label">Pendientes</span>
                     <strong th:text="${dashboard != null ? dashboard.solicitudesPendientes : 0}">0</strong>
                 </article>
-                <article class="metric success">
+                <article class="metric success col-12 col-sm-6 col-xl-3">
                     <span class="label">Aprobadas</span>
                     <strong th:text="${dashboard != null ? dashboard.solicitudesAprobadas : 0}">0</strong>
                 </article>
             </div>
 
-            <div class="metric-row">
-                <article class="metric">
+            <div class="row g-3 mb-3">
+                <article class="metric col-12 col-sm-6">
                     <span class="label">Pagos recibidos</span>
                     <strong th:text="'$' + ${dashboard != null and dashboard.pagosRecibidos != null ? #numbers.formatDecimal(dashboard.pagosRecibidos, 1, 2) : '0.00'}">$0.00</strong>
                 </article>
-                <article class="metric danger">
+                <article class="metric danger col-12 col-sm-6">
                     <span class="label">Saldo por cobrar</span>
                     <strong th:text="'$' + ${dashboard != null and dashboard.deudaPendiente != null ? #numbers.formatDecimal(dashboard.deudaPendiente, 1, 2) : '0.00'}">$0.00</strong>
                 </article>
             </div>
 
-            <article class="card">
+            <article class="card mb-4">
                 <h2>Acciones rápidas</h2>
-                <div class="table-wrap">
-                    <table>
+                <div class="table-wrap table-responsive">
+                    <table class="align-middle">
                         <thead>
                         <tr>
                             <th>Cliente</th>
@@ -79,7 +82,7 @@
                                     <input type="hidden" name="estado" value="APROBADO">
                                     <button class="button primary tiny" type="submit">Aprobar</button>
                                 </form>
-                                <a class="button secondary tiny" th:href="@{/vendedor/creditos/detalle(id=${s.idSolicitud})}">Detalles</a>
+                                <a class="button secondary tiny text-center" th:href="@{/vendedor/creditos/detalle(id=${s.idSolicitud})}">Detalles</a>
                             </td>
                         </tr>
                         </tbody>
@@ -87,10 +90,10 @@
                 </div>
             </article>
 
-            <article class="card">
+            <article class="card mb-4">
                 <h2>Tiendas asignadas</h2>
-                <div class="table-wrap">
-                    <table>
+                <div class="table-wrap table-responsive">
+                    <table class="align-middle">
                         <thead>
                         <tr>
                             <th>Tienda</th>
@@ -105,8 +108,8 @@
                             <td th:text="${t.nit}">NIT</td>
                             <td th:text="${t.direccion}">Dirección</td>
                             <td>
-                                <a class="button secondary tiny" th:href="@{/vendedor/tienda(idTienda=${t.idTienda})}">Gestionar</a>
-                                <a class="button secondary tiny" th:href="@{/vendedor/inventario(idTienda=${t.idTienda})}">Inventario</a>
+                                <a class="button secondary tiny text-center" th:href="@{/vendedor/tienda(idTienda=${t.idTienda})}">Gestionar</a>
+                                <a class="button secondary tiny text-center" th:href="@{/vendedor/inventario(idTienda=${t.idTienda})}">Inventario</a>
                             </td>
                         </tr>
                         </tbody>

@@ -2292,3 +2292,45 @@ td .button + .button {
         transition:none;
     }
 }
+/* Pega estas reglas al final de src/main/resources/static/css/styles.css */
+
+/* Compatibilidad de Offcanvas con la cuadrícula actual de DebiCom en tabletas. */
+@media (max-width: 991.98px) {
+    .app-shell {
+        display: block !important;
+    }
+
+    .app-shell > .sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: min(290px, 84vw) !important;
+        height: 100vh !important;
+        z-index: 1080 !important;
+    }
+
+    .app-shell > .app-main {
+        grid-column: auto;
+        grid-row: auto;
+        width: 100% !important;
+    }
+}
+
+/* Visibilidad del Dropdown Bootstrap con el tema oscuro de DebiCom. */
+.user-dropdown.dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+/* El resumen conserva su fondo y adapta las columnas en pantallas pequeñas. */
+.credit-summary.row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+}
+
+/* El padding queda controlado por el cuerpo interno del Offcanvas. */
+.sidebar.offcanvas-lg {
+    padding: 0 !important;
+}
+
